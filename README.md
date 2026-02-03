@@ -7,4 +7,4 @@ Giới thiêu: là một hệ thống quản lý các hoạt động kinh doanh 
 · Dữ liệu thời gian thực.
 · Tích hợp hệ thống thanh toán (có thể mở rộng).
 
-Lưu ý: Mở thư mục /instructure
+**Lưu ý: Mở thư mục /instructure hướng dẫn chi tiết theo từng buổi học**
