@@ -7,55 +7,7 @@
   </head>
   <body>
     <h1>Chào mừng bạn đến với Website kết nối Firebase!</h1>
-    <p id="status">Đang kiểm tra kết nối...</p>
 
-    <script type="module">
-      // 1. Import các hàm cần thiết từ Firebase SDK
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import {
-        getFirestore,
-        collection,
-        addDoc,
-        serverTimestamp,
-      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-      // 2. Cấu hình Firebase của riêng bạn (Lấy từ Firebase Console)
-      // Lưu ý: Hãy thay thế các giá trị bên dưới bằng mã bạn copy được từ Firebase
-      const firebaseConfig = {
-        apiKey: "AIzaSy...",
-        authDomain: "your-project.firebaseapp.com",
-        projectId: "your-project-id",
-        storageBucket: "your-project.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef",
-      };
-
-      const statusEl = document.getElementById("status");
-
-      try {
-        // 1. Khởi tạo Firebase
-        const app = initializeApp(firebaseConfig);
-
-        // 2. Khởi tạo Firestore
-        const db = getFirestore(app);
-
-        // 3. Thử ghi dữ liệu vào collection "users"
-        const docRef = await addDoc(collection(db, "users"), {
-          name: "Test User",
-          email: "test@example.com",
-          createdAt: serverTimestamp(),
-        });
-
-        // 4. Nếu tới được đây => Kết nối OK + Ghi DB OK
-        statusEl.innerText =
-          "✅ Kết nối Firebase thành công! Đã tạo user với ID: " + docRef.id;
-        console.log("Tạo user thành công, ID:", docRef.id);
-      } catch (error) {
-        // 5. Nếu config sai / không kết nối được / bị chặn quyền
-        console.error("❌ Lỗi Firebase:", error);
-        statusEl.innerText =
-          "❌ Kết nối Firebase thất bại! Vui lòng kiểm tra lại cấu hình.";
-      }
-    </script>
+    <script type="module" src="./firebase-config.js"></script>
   </body>
 </html>
