@@ -1,0 +1,143 @@
+/* style.css */
+
+/* --- BIẾN DÙNG CHUNG --- */
+:root {
+    --primary-color: #a0522d;
+    --primary-hover: #8b4513;
+    --dark-bg: rgba(0, 0, 0, 0.8);
+    --input-bg: #2c3136;
+    --input-focus: #3a4148;
+    --text-muted: #a6a6a6;
+}
+
+/* --- THIẾT LẬP CHUNG --- */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- AUTHENTICATION (Login & Register) --- */
+.background-auth {
+    background: url("https://images.unsplash.com/photo-1521917441209-e886f0404a7b?q=80&w=1460&auto=format&fit=crop") no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    background: var(--dark-bg);
+    color: white;
+    padding: 40px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.title-page {
+    color: #a54d2d;
+    font-size: 1.4rem;
+    margin-bottom: 30px;
+}
+
+/* Form Controls Tối ưu */
+.form-control {
+    background: var(--input-bg);
+    border: none;
+    color: white !important;
+    padding-left: 45px;
+    height: 45px;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted) !important;
+}
+
+.form-control:focus {
+    background: var(--input-focus);
+    box-shadow: none;
+    border: 1px solid var(--primary-color);
+}
+
+.input-group-text {
+    background: transparent;
+    border: none;
+    color: #888;
+    position: absolute;
+    z-index: 10;
+    padding: 12px 15px;
+}
+
+.btn-auth,
+.btn-buy,
+.btn-order {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.btn-auth:hover,
+.btn-buy:hover,
+.btn-order:hover {
+    background-color: var(--primary-hover);
+    color: white;
+}
+
+/* --- HOMEPAGE --- */
+.navbar {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    padding: 15px 0;
+}
+
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    color: white;
+    position: relative;
+}
+
+.brush-bottom {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    line-height: 0;
+}
+
+.brush-bottom svg {
+    fill: #ffffff;
+    height: 100px;
+    width: 100%;
+}
+
+/* Products */
+.section-padding {
+    padding: 80px 0;
+}
+
+.product-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+}
+
+.product-card img {
+    height: 200px;
+    object-fit: cover;
+    border-radius: 15px 15px 0 0;
+}

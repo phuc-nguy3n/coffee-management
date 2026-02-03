@@ -4,9 +4,204 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Coffee management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <h1>Chào mừng bạn đến với Website kết nối Firebase!</h1>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/924/924514.png"
+            alt="Logo"
+            width="40"
+            class="me-2"
+          />
+          <strong>Cafe</strong>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Menu</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#"
+                ><i class="fa-solid fa-bag-shopping"></i
+              ></a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fa-regular fa-user"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end bg-dark">
+                <li>
+                  <a class="dropdown-item text-white" href="login.html"
+                    >Đăng nhập</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item text-white" href="register.html"
+                    >Đăng ký</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero-section">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 hero-content">
+            <h1>Bắt đầu ngày với một tách đen đá không đường...</h1>
+            <button class="btn btn-buy">Mua ngay</button>
+          </div>
+          <div class="col-lg-6 text-center d-none d-lg-block">
+            <img
+              src="./assets/imgs/homepage/cup-coffee.png"
+              alt="Coffee Cup"
+              class="img-fluid"
+              style="max-height: 500px"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="brush-bottom">
+        <svg viewBox="0 0 500 150" preserveAspectRatio="none">
+          <path
+            d="M-10.44,50.82 C164.50,183.05 343.40,-54.76 507.05,80.42 L500.00,150.00 L0.00,150.00 Z"
+          ></path>
+        </svg>
+      </div>
+    </section>
+
+    <section class="section-padding bg-white">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-6 mb-4 mb-md-0">
+            <div class="video-container ratio ratio-16x9">
+              <iframe
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                title="Coffee Art"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+          <div class="col-md-6 text-center">
+            <h2 class="fw-bold mb-3">Have a ship - Uống gì không?</h2>
+            <p class="text-muted">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-padding bg-light">
+      <div class="container">
+        <h3 class="fw-bold mb-4">Hôm nay có gì?</h3>
+        <div class="row g-4">
+          <div class="col-6 col-md-3">
+            <div class="card product-card">
+              <img
+                src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=500"
+                class="card-img-top"
+                alt="Cà phê cốt dừa"
+              />
+              <div class="card-body">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="card-title mb-0">Cà phê cốt dừa</h6>
+                  <span class="price-text">40.000 đ</span>
+                </div>
+                <button class="btn btn-order">Đặt hàng</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card product-card">
+              <img
+                src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?q=80&w=500"
+                class="card-img-top"
+                alt="Cà phê bạc xỉu"
+              />
+              <div class="card-body">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="card-title mb-0">Cà phê bạc xỉu</h6>
+                  <span class="price-text">28.000 đ</span>
+                </div>
+                <button class="btn btn-order">Đặt hàng</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card product-card">
+              <img
+                src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=500"
+                class="card-img-top"
+                alt="Cà phê nâu"
+              />
+              <div class="card-body">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="card-title mb-0">Cà phê nâu</h6>
+                  <span class="price-text">30.000 đ</span>
+                </div>
+                <button class="btn btn-order">Đặt hàng</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card product-card">
+              <img
+                src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=500"
+                class="card-img-top"
+                alt="Ca cao cốt dừa"
+              />
+              <div class="card-body">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
+                >
+                  <h6 class="card-title mb-0">Ca cao cốt dừa</h6>
+                  <span class="price-text">40.000 đ</span>
+                </div>
+                <button class="btn btn-order">Đặt hàng</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script type="module" src="./firebase-config.js"></script>
   </body>
