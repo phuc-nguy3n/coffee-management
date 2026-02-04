@@ -58,6 +58,27 @@ Tạo file `index.html` và `firebase-config.js` chú ý phần mã trong thẻ:
 ```
 
 ```javascript
+    // Import các hàm cần thiết từ Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import {
+    getDocs,
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp,
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Cấu hình Firebase của riêng bạn (Lấy từ Firebase Console)
+    // Lưu ý: Hãy thay thế các giá trị bên dưới bằng mã bạn copy được từ Firebase
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY_HERE",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: "",
+    };
+
     // 1. Khởi tạo Firebase
     const app = initializeApp(firebaseConfig);
 
@@ -136,7 +157,7 @@ Thành:
     const app = initializeApp(firebaseConfig);
 
     // 2. Khởi tạo Firestore
-    const db = getFirestore(app);
+    const db = getFirestore(app); 
 
     try {
         // 3. Thử đọc dữ liệu từ collection "users"
