@@ -77,12 +77,22 @@ onAuthStateChanged(auth, (user) => {
     // Lấy đường dẫn đã lưu từ localStorage
     const lastPage = localStorage.getItem("lastVisitedPage");
 
-    // Nếu có trang cũ thì về trang đó, không thì về index.html
-    const redirectUrl = lastPage ? lastPage : "index.html";
+    let redirectUrl = "index.html";
+    if (lastPage) {
+      try {
+        const parsed = new URL(lastPage, window.location.origin);
+        // Chỉ cho phép redirect nội bộ cùng origin
+        if (parsed.origin === window.location.origin) {
+          redirectUrl = parsed.href;
+        }
+      } catch (error) {
+        // ignore invalid URL and keep fallback
+        console.error("Invalid URL in lastVisitedPage:", error);
+      }
+    }
 
     console.log("Đã đăng nhập, đẩy về:", redirectUrl);
 
-    // Dùng replace để ghi đè lịch sử, nút Back sẽ không quay lại trang login được
     window.location.replace(redirectUrl);
   }
 });
