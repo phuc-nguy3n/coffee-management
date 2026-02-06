@@ -61,7 +61,26 @@ const handleLogout = async (e) => {
 
 // Lắng nghe trạng thái đăng nhập của Firebase trên toàn hệ thống
 onAuthStateChanged(auth, (user) => {
+  // 1. Cập nhật UI Navbar (hàm bạn đã viết)
   updateNavbarUI(user);
+
+  // 2. Logic điều hướng tức thì
+  const currentPage = window.location.pathname;
+  const isAuthPage =
+    currentPage.includes("login.html") || currentPage.includes("register.html");
+
+  if (user && isAuthPage) {
+    // Lấy đường dẫn đã lưu từ localStorage
+    const lastPage = localStorage.getItem("lastVisitedPage");
+
+    // Nếu có trang cũ thì về trang đó, không thì về index.html
+    const redirectUrl = lastPage ? lastPage : "index.html";
+
+    console.log("Đã đăng nhập, đẩy về:", redirectUrl);
+
+    // Dùng replace để ghi đè lịch sử, nút Back sẽ không quay lại trang login được
+    window.location.replace(redirectUrl);
+  }
 });
 
 // ================= ĐĂNG KÝ TAI KHOẢN MỚI =================
