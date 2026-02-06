@@ -43,7 +43,7 @@ body {
     margin-bottom: 30px;
 }
 
-/* Form Controls Tối ưu */
+/* Form Controls */
 .form-control {
     background: var(--input-bg);
     border: none;
@@ -68,25 +68,9 @@ body {
     color: #888;
     position: absolute;
     z-index: 10;
-    padding: 12px 15px;
+    padding: 14px 15px;
 }
 
-.btn-auth,
-.btn-buy,
-.btn-order {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    font-weight: bold;
-    transition: 0.3s ease;
-}
-
-.btn-auth:hover,
-.btn-buy:hover,
-.btn-order:hover {
-    background-color: var(--primary-hover);
-    color: white;
-}
 
 /* --- HOMEPAGE --- */
 .navbar {
@@ -123,21 +107,4 @@ body {
 /* Products */
 .section-padding {
     padding: 80px 0;
-}
-
-.product-card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    transition: 0.3s;
-}
-
-.product-card:hover {
-    transform: translateY(-10px);
-}
-
-.product-card img {
-    height: 200px;
-    object-fit: cover;
-    border-radius: 15px 15px 0 0;
 }
