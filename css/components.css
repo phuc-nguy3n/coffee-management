@@ -1,0 +1,45 @@
+/* --- components.css --- */
+
+/* Nút bấm (Buttons) */
+.btn-custom {
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-auth,
+.btn-buy,
+.btn-order {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.btn-auth:hover,
+.btn-buy:hover,
+.btn-order:hover {
+    background-color: var(--primary-hover);
+    color: white;
+}
+
+/* Thẻ sản phẩm (Product Cards) */
+.product-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+}
+
+.product-card img {
+    height: 200px;
+    object-fit: cover;
+    border-radius: 15px 15px 0 0;
+}
