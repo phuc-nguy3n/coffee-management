@@ -55,10 +55,11 @@ const handleLogout = async (e) => {
   e.preventDefault();
   try {
     await signOut(auth);
-    alert("Đã đăng xuất!");
+    // Chuyển hướng ngay lập tức sau khi đăng xuất thành công.
     window.location.href = "index.html";
   } catch (error) {
     console.error("Lỗi đăng xuất:", error);
+    alert("Đăng xuất thất bại. Vui lòng thử lại.");
   }
 };
 
