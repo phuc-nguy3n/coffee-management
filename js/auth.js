@@ -178,7 +178,7 @@ if (loginForm) {
       window.location.replace("./index.html");
     } catch (error) {
       // Hiện thông báo lỗi cho người dùng.
-      alert("Email hoặc mật khẩu không chính xác!");
+      alert("Lỗi: " + error.message);
     }
   });
 }
