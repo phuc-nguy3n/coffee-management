@@ -24,7 +24,10 @@ const updateNavbarUI = (user) => {
 
   if (user) {
     // Trường hợp: Đã đăng nhập
-    userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> ${user.displayName || "Thành viên"}`;
+    userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> `;
+    userDropdown.appendChild(
+      document.createTextNode(user.displayName || "Thành viên"),
+    );
 
     dropdownMenu.innerHTML = `
       <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>Tài khoản</a></li>
