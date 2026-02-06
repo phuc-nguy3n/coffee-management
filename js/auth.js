@@ -24,9 +24,14 @@ const updateNavbarUI = (user) => {
 
   if (user) {
     // Trường hợp: Đã đăng nhập
-    userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> `;
+    userDropdown.replaceChildren();
+
+    const icon = document.createElement("i");
+    icon.className = "fa-regular fa-user me-1";
+    userDropdown.appendChild(icon);
+
     userDropdown.appendChild(
-      document.createTextNode(user.displayName || "Thành viên"),
+      document.createTextNode(user?.displayName || "Thành viên"),
     );
 
     dropdownMenu.innerHTML = `
