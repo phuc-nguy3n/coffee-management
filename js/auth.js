@@ -56,7 +56,7 @@ const handleLogout = async (e) => {
   try {
     await signOut(auth);
     // Chuyển hướng ngay lập tức sau khi đăng xuất thành công.
-    window.location.href = "index.html";
+    window.location.replace("index.html");
   } catch (error) {
     console.error("Lỗi đăng xuất:", error);
     alert("Đăng xuất thất bại. Vui lòng thử lại.");
@@ -65,10 +65,10 @@ const handleLogout = async (e) => {
 
 // Lắng nghe trạng thái đăng nhập của Firebase trên toàn hệ thống
 onAuthStateChanged(auth, (user) => {
-  // 1. Cập nhật UI Navbar (hàm bạn đã viết)
+  // Cập nhật UI Navbar (hàm bạn đã viết)
   updateNavbarUI(user);
 
-  // 2. Logic điều hướng tức thì
+  // Logic điều hướng tức thì
   const currentPage = window.location.pathname;
   const isAuthPage =
     currentPage.includes("login.html") || currentPage.includes("register.html");
