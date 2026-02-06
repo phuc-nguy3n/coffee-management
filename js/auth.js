@@ -1,11 +1,70 @@
 // Import đối tượng auth từ file cấu hình Firebase của bạn.
 import { auth } from "./firebase-config.js";
 
-// Import 2 hàm từ Firebase Auth SDK để tạo tài khoản và cập nhật profile.
+// Import hàm từ Firebase Auth SDK.
 import {
   createUserWithEmailAndPassword,
   updateProfile,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+// ================= TỰ ĐỘNG QUẢN LÝ NAVBAR =================
+
+/**
+ * Hàm cập nhật giao diện Navbar dựa trên trạng thái người dùng
+ * @param {Object|null} user - Đối tượng người dùng từ Firebase
+ */
+const updateNavbarUI = (user) => {
+  const userDropdown = document.getElementById("userDropdown");
+  const dropdownMenu = document.querySelector("#userDropdown + .dropdown-menu");
+
+  if (!userDropdown || !dropdownMenu) return; // Nếu trang không có Navbar thì bỏ qua
+
+  if (user) {
+    // Trường hợp: Đã đăng nhập
+    userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> ${user.displayName || "Thành viên"}`;
+
+    dropdownMenu.innerHTML = `
+      <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>Tài khoản</a></li>
+      <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử đơn</a></li>
+      <li><hr class="dropdown-divider bg-secondary"></li>
+      <li><a class="dropdown-item text-white" href="#" id="logoutBtn"><i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất</a></li>
+    `;
+
+    // Gắn sự kiện đăng xuất
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", handleLogout);
+  } else {
+    // Trường hợp: Chưa đăng nhập
+    userDropdown.innerHTML = `<i class="fa-regular fa-user"></i>`;
+    dropdownMenu.innerHTML = `
+      <li><a class="dropdown-item text-white" href="login.html">Đăng nhập</a></li>
+      <li><a class="dropdown-item text-white" href="register.html">Đăng ký</a></li>
+    `;
+  }
+};
+
+// ================= ĐĂNH XUẤT =================
+const handleLogout = async (e) => {
+  e.preventDefault();
+  try {
+    await signOut(auth);
+    alert("Đã đăng xuất!");
+    window.location.href = "index.html";
+  } catch (error) {
+    console.error("Lỗi đăng xuất:", error);
+  }
+};
+
+// Lắng nghe trạng thái đăng nhập của Firebase trên toàn hệ thống
+onAuthStateChanged(auth, (user) => {
+  updateNavbarUI(user);
+});
+
+// ================= ĐĂNG KÝ TAI KHOẢN MỚI =================
 
 // Lấy thẻ <form> có id là registerForm trong HTML và gán vào biến registerForm.
 const registerForm = document.getElementById("registerForm");
@@ -58,6 +117,46 @@ if (registerForm) {
       // Nếu có lỗi khi tạo tài khoản hoặc update profile thì nhảy vào đây
       // Hiện thông báo lỗi từ Firebase (ví dụ: email đã tồn tại, mật khẩu quá yếu, v.v.)
       alert("Lỗi: " + error.message);
+    }
+  });
+}
+
+// ================= ĐĂNG NHẬP (EMAIL/PASSWORD) =================
+
+// Lấy thẻ <form> có id="loginForm" trong HTML và gán vào biến loginForm.
+const loginForm = document.getElementById("loginForm");
+
+// Kiểm tra form có tồn tại không
+if (loginForm) {
+  // Bắt sự kiện submit của form
+  // Lắng nghe sự kiện khi người dùng bấm nút Đăng nhập (submit form).
+  // Dùng async để có thể dùng await với Firebase API.
+  loginForm.addEventListener("submit", async (e) => {
+    // Ngăn hành vi mặc định của form (reload trang khi submit).
+    e.preventDefault();
+
+    // Lấy dữ liệu người dùng nhập
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    // Bọc trong try...catch để xử lý lỗi nếu đăng nhập thất bại.
+    try {
+      // Gọi Firebase Authentication để đăng nhập:
+      // - auth: đối tượng xác thực Firebase
+      // - email: email người dùng nhập
+      // - password: mật khẩu người dùng nhập
+      // Nếu thành công, Firebase trả về userCredential (chứa thông tin user đăng nhập)
+
+      await signInWithEmailAndPassword(auth, email, password);
+
+      //   Hiện thông báo cho người dùng biết đăng nhập thành công.
+      alert("Đăng nhập thành công!");
+
+      //   Chuyển sang trang chủ index.html.
+      window.location.replace("./index.html");
+    } catch (error) {
+      // Hiện thông báo lỗi cho người dùng.
+      alert("Email hoặc mật khẩu không chính xác!");
     }
   });
 }
