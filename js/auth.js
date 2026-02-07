@@ -80,7 +80,7 @@ const updateNavbarUI = async (user) => {
       // 2. Kiểm tra Role và thêm nút Dashboard bằng DOM
       if (userData.role === "admin" && adminFeatureContainer) {
         adminFeatureContainer.innerHTML = `
-                    <a class="nav-link text-warning" href="admin-dashboard.html">
+                    <a class="nav-link text-warning" href="../admin/dashboard.html">
                         <i class="fa-solid fa-gauge"></i> Dashboard
                     </a>`;
       }
