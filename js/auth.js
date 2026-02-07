@@ -1,5 +1,5 @@
 // Import đối tượng auth từ file cấu hình Firebase của bạn.
-import { auth } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 
 // Import hàm từ Firebase Auth SDK.
 import {
@@ -9,6 +9,50 @@ import {
   onAuthStateChanged,
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+// Import các hàm Firestore cần thiết
+import {
+  doc,
+  setDoc,
+  serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Thêm một biến kiểm soát ở đầu file auth.js
+let isRegistering = false;
+
+// ================ LẮNG NGHE TRẠNG THÁI ĐĂNG NHẬP CỦA FIREBASE TRÊN TOÀN HỆ THỐNG =================
+onAuthStateChanged(auth, (user) => {
+  // Cập nhật UI Navbar (hàm bạn đã viết)
+  updateNavbarUI(user);
+
+  // Logic điều hướng tức thì
+  const currentPage = window.location.pathname;
+  const isAuthPage =
+    currentPage.includes("login.html") || currentPage.includes("register.html");
+
+  if (user && isAuthPage && !isRegistering) {
+    // Lấy đường dẫn đã lưu từ localStorage
+    const lastPage = localStorage.getItem("lastVisitedPage");
+
+    let redirectUrl = "index.html";
+    if (lastPage) {
+      try {
+        const parsed = new URL(lastPage, window.location.origin);
+        // Chỉ cho phép redirect nội bộ cùng origin
+        if (parsed.origin === window.location.origin) {
+          redirectUrl = parsed.href;
+        }
+      } catch (error) {
+        // ignore invalid URL and keep fallback
+        console.error("Invalid URL in lastVisitedPage:", error);
+      }
+    }
+
+    console.log("Đã đăng nhập, đẩy về:", redirectUrl);
+
+    window.location.replace(redirectUrl);
+  }
+});
 
 // ================= TỰ ĐỘNG QUẢN LÝ NAVBAR =================
 
@@ -55,54 +99,7 @@ const updateNavbarUI = (user) => {
   }
 };
 
-// ================= ĐĂNH XUẤT =================
-const handleLogout = async (e) => {
-  e.preventDefault();
-  try {
-    await signOut(auth);
-    // Chuyển hướng ngay lập tức sau khi đăng xuất thành công.
-    window.location.replace("index.html");
-  } catch (error) {
-    console.error("Lỗi đăng xuất:", error);
-    alert("Đăng xuất thất bại. Vui lòng thử lại.");
-  }
-};
-
-// Lắng nghe trạng thái đăng nhập của Firebase trên toàn hệ thống
-onAuthStateChanged(auth, (user) => {
-  // Cập nhật UI Navbar (hàm bạn đã viết)
-  updateNavbarUI(user);
-
-  // Logic điều hướng tức thì
-  const currentPage = window.location.pathname;
-  const isAuthPage =
-    currentPage.includes("login.html") || currentPage.includes("register.html");
-
-  if (user && isAuthPage) {
-    // Lấy đường dẫn đã lưu từ localStorage
-    const lastPage = localStorage.getItem("lastVisitedPage");
-
-    let redirectUrl = "index.html";
-    if (lastPage) {
-      try {
-        const parsed = new URL(lastPage, window.location.origin);
-        // Chỉ cho phép redirect nội bộ cùng origin
-        if (parsed.origin === window.location.origin) {
-          redirectUrl = parsed.href;
-        }
-      } catch (error) {
-        // ignore invalid URL and keep fallback
-        console.error("Invalid URL in lastVisitedPage:", error);
-      }
-    }
-
-    console.log("Đã đăng nhập, đẩy về:", redirectUrl);
-
-    window.location.replace(redirectUrl);
-  }
-});
-
-// ================= ĐĂNG KÝ TAI KHOẢN MỚI =================
+// ================= ĐĂNG KÝ TÀI KHOẢN MỚI =================
 
 // Lấy thẻ <form> có id là registerForm trong HTML và gán vào biến registerForm.
 const registerForm = document.getElementById("registerForm");
@@ -115,6 +112,9 @@ if (registerForm) {
   registerForm.addEventListener("submit", async (e) => {
     // Ngăn trình duyệt reload trang khi submit form
     e.preventDefault();
+
+    // Bật cờ đăng ký để ngăn onAuthStateChanged chuyển hướng
+    isRegistering = true;
 
     // Lấy dữ liệu người dùng nhập
     const name = document.getElementById("registerName").value;
@@ -136,15 +136,32 @@ if (registerForm) {
       // - email: email người dùng nhập
       // - password: mật khẩu người dùng nhập
       // Nếu thành công, Firebase trả về userCredential (chứa thông tin user vừa tạo)
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password,
       );
+      const user = userCredential.user;
+
       // Cập nhật tên hiển thị cho người dùng
       //   userCredential.user: user hiện tại
       //   { displayName: name }: set tên hiển thị = tên người dùng nhập
-      await updateProfile(userCredential.user, { displayName: name });
+      await updateProfile(user, { displayName: name });
+
+      // Lưu thông tin bổ sung vào Firestore
+      // Chúng ta dùng UID làm Document ID để dễ dàng truy vấn sau này
+
+      await setDoc(doc(db, "users", user.uid), {
+        displayName: name,
+        email: email,
+        role: "customer",
+        createdAt: serverTimestamp(), // Lưu thời gian theo chuẩn Firebase
+        updatedAt: serverTimestamp(),
+      });
+
+      // Sau khi lưu xong mọi thứ, đăng xuất để user không bị tự động đăng nhập
+      await signOut(auth);
 
       //   Hiện thông báo đăng ký thành công
       alert("Đăng ký thành công!");
@@ -155,6 +172,9 @@ if (registerForm) {
       // Nếu có lỗi khi tạo tài khoản hoặc update profile thì nhảy vào đây
       // Hiện thông báo lỗi từ Firebase (ví dụ: email đã tồn tại, mật khẩu quá yếu, v.v.)
       alert("Lỗi: " + error.message);
+    } finally {
+      // Luôn tắt cờ ở cuối quá trình
+      isRegistering = false;
     }
   });
 }
@@ -198,3 +218,16 @@ if (loginForm) {
     }
   });
 }
+
+// ================= ĐĂNH XUẤT =================
+const handleLogout = async (e) => {
+  e.preventDefault();
+  try {
+    await signOut(auth);
+    // Chuyển hướng ngay lập tức sau khi đăng xuất thành công.
+    window.location.replace("index.html");
+  } catch (error) {
+    console.error("Lỗi đăng xuất:", error);
+    alert("Đăng xuất thất bại. Vui lòng thử lại.");
+  }
+};
