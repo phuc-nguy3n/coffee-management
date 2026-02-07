@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard - Coffee Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body>
+    <div class="d-flex" id="wrapper">
+      <!-- ================= SIDEBAR ================= -->
+      <div class="bg-dark text-white" id="sidebar-wrapper">
+        <div
+          class="sidebar-heading text-center py-4 primary-text fs-4 fw-bold text-uppercase border-bottom"
+        >
+          <i class="fas fa-coffee me-2"></i>Cafe Admin
+        </div>
+        <div class="list-group list-group-flush my-3">
+          <a
+            href="#"
+            class="list-group-item list-group-item-action bg-transparent text-white active"
+            data-section="overview"
+          >
+            <i class="fas fa-tachometer-alt me-2"></i>Tổng quan
+          </a>
+          <a
+            href="#"
+            class="list-group-item list-group-item-action bg-transparent text-white"
+            data-section="orders"
+          >
+            <i class="fas fa-shopping-cart me-2"></i>Quản lý đơn hàng
+          </a>
+          <a
+            href="#"
+            class="list-group-item list-group-item-action bg-transparent text-white"
+            data-section="products"
+          >
+            <i class="fas fa-box me-2"></i>Quản lý sản phẩm
+          </a>
+          <a
+            href="#"
+            class="list-group-item list-group-item-action bg-transparent text-white"
+            data-section="customers"
+          >
+            <i class="fas fa-users me-2"></i>Khách hàng
+          </a>
+          <a
+            href="../index.html"
+            class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"
+          >
+            <i class="fas fa-arrow-left me-2"></i>Quay lại Store
+          </a>
+        </div>
+      </div>
+
+      <!-- ================= MAIN CONTENT ================= -->
+      <div id="page-content-wrapper">
+        <nav
+          class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4"
+        >
+          <div class="d-flex align-items-center">
+            <i
+              class="fas fa-align-left primary-text fs-4 me-3"
+              id="menu-toggle"
+            ></i>
+            <h2 class="fs-2 m-0 primary-text">Tổng quan hệ thống</h2>
+          </div>
+        </nav>
+
+        <div class="container-fluid px-4">
+          <div id="section-overview" class="admin-section">
+            <div class="row g-3 my-2">
+              <div class="col-md-3">
+                <div
+                  class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded"
+                >
+                  <div>
+                    <h3 class="fs-2" id="stat-products">0</h3>
+                    <p class="fs-5">Sản phẩm</p>
+                  </div>
+                  <i
+                    class="fas fa-box fs-1 primary-text border rounded-full secondary-bg p-3"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danh sách đơn hàng -->
+          <div id="section-orders" class="admin-section d-none">
+            <div class="row my-5">
+              <div class="d-flex justify-content-between mb-3">
+                <h3 class="fs-4">Danh sách đơn hàng</h3>
+                <button class="btn btn-auth" onclick="openOrderModal()">
+                  <i class="fas fa-plus me-2"></i>Tạo đơn hàng mới
+                </button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table bg-white rounded shadow-sm table-hover">
+                  <thead>
+                    <tr>
+                      <th>Mã đơn</th>
+                      <th>Khách hàng</th>
+                      <th>Tổng tiền</th>
+                      <th>Trạng thái</th>
+                      <th>Ngày tạo</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order-list-render"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danh sách sản phẩm -->
+          <div id="section-products" class="admin-section d-none">
+            <div class="row my-5">
+              <div class="d-flex justify-content-between mb-3">
+                <h3 class="fs-4">Danh sách sản phẩm</h3>
+                <button class="btn btn-auth" onclick="openAddModal()">
+                  + Thêm món
+                </button>
+              </div>
+              <table class="table bg-white rounded shadow-sm table-hover">
+                <thead>
+                  <tr>
+                    <th>Ảnh</th>
+                    <th>Tên món</th>
+                    <th>Giá</th>
+                    <th>Ngày tạo</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="product-list-render"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="section-customers" class="admin-section d-none">
+            <div class="row my-5">
+              <h3 class="fs-4 mb-3">Danh sách khách hàng</h3>
+              <table class="table bg-white rounded shadow-sm table-hover">
+                <thead>
+                  <tr>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Ngày tạo</th>
+                  </tr>
+                </thead>
+                <tbody id="customer-list-render"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PRODUCT MODAL ================= -->
+    <div
+      class="modal fade"
+      id="productModal"
+      tabindex="-1"
+      aria-labelledby="modalTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div
+          class="modal-content bg-dark text-white"
+          style="border: 1px solid #444"
+        >
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title" id="modalTitle">Thêm Sản Phẩm Mới</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form id="productForm">
+            <div class="modal-body">
+              <input type="hidden" id="productId" />
+
+              <div class="mb-3">
+                <label for="pName" class="form-label">Tên sản phẩm</label>
+                <input
+                  type="text"
+                  class="form-control bg-secondary text-white border-0"
+                  id="pName"
+                  placeholder="Ví dụ: Cà phê muối"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="pPrice" class="form-label">Giá bán (VNĐ)</label>
+                <input
+                  type="number"
+                  class="form-control bg-secondary text-white border-0"
+                  id="pPrice"
+                  placeholder="Ví dụ: 35000"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="pImg" class="form-label">Link hình ảnh (URL)</label>
+                <input
+                  type="url"
+                  class="form-control bg-secondary text-white border-0"
+                  id="pImg"
+                  placeholder="https://images.unsplash.com/..."
+                  required
+                />
+              </div>
+            </div>
+            <div class="modal-footer border-secondary">
+              <button
+                type="button"
+                class="btn btn-outline-light"
+                data-bs-dismiss="modal"
+              >
+                Hủy
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Lưu sản phẩm
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ORDER MODAL ================= -->
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title" id="orderModalTitle">Tạo Đơn Hàng Mới</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form id="orderForm">
+            <div class="modal-body">
+              <input type="hidden" id="currentOrderId" />
+
+              <div class="mb-3">
+                <label class="form-label">Tên khách hàng</label>
+                <input
+                  type="text"
+                  id="orderCustomer"
+                  class="form-control bg-secondary text-white border-0"
+                  required
+                />
+              </div>
+
+              <div id="product-selection-area" class="mb-3">
+                <label class="form-label">Chọn sản phẩm</label>
+                <div
+                  id="product-checkbox-list"
+                  class="p-3 bg-secondary rounded"
+                  style="max-height: 200px; overflow-y: auto"
+                ></div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Tổng tiền (VNĐ)</label>
+                <input
+                  type="number"
+                  id="orderTotal"
+                  class="form-control bg-dark text-white border-0"
+                  readonly
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Trạng thái</label>
+                <select
+                  id="orderStatus"
+                  class="form-select bg-secondary text-white border-0"
+                  disabled
+                >
+                  <option value="Đang chờ" selected>Đang chờ</option>
+                  <option value="Đã xác nhận">Đã xác nhận</option>
+                  <option value="Hoàn thành">Hoàn thành</option>
+                  <option value="Đã hủy">Đã hủy</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer border-secondary">
+              <button type="submit" id="btnOrderSubmit" class="btn btn-primary">
+                Xác nhận tạo đơn
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="../js/admin.js"></script>
+  </body>
+</html>
