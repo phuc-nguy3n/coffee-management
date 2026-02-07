@@ -13,6 +13,7 @@ export function loadNavbar() {
           <ul class="navbar-nav ms-auto" id="nav-menu-items">
             <li class="nav-item"><a class="nav-link" href="index.html">Trang chủ</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Menu</a></li>
+            <li class="nav-item" id="admin-feature"></li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" data-bs-toggle="dropdown">
                 <i class="fa-regular fa-user"></i>

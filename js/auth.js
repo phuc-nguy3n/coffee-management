@@ -15,6 +15,7 @@ import {
   doc,
   setDoc,
   serverTimestamp,
+  getDoc,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Thêm một biến kiểm soát ở đầu file auth.js
@@ -60,42 +61,49 @@ onAuthStateChanged(auth, (user) => {
  * Hàm cập nhật giao diện Navbar dựa trên trạng thái người dùng
  * @param {Object|null} user - Đối tượng người dùng từ Firebase
  */
-const updateNavbarUI = (user) => {
+const updateNavbarUI = async (user) => {
   const userDropdown = document.getElementById("userDropdown");
   const dropdownMenu = document.querySelector("#userDropdown + .dropdown-menu");
+  const adminFeatureContainer = document.getElementById("admin-feature");
 
-  if (!userDropdown || !dropdownMenu) return; // Nếu trang không có Navbar thì bỏ qua
+  // Xóa nội dung cũ của vùng admin mỗi khi trạng thái thay đổi
+  if (adminFeatureContainer) adminFeatureContainer.innerHTML = "";
 
   if (user) {
-    // Trường hợp: Đã đăng nhập
-    userDropdown.replaceChildren();
+    // 1. Lấy dữ liệu Role từ Firestore
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
 
-    const icon = document.createElement("i");
-    icon.className = "fa-regular fa-user me-1";
-    userDropdown.appendChild(icon);
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
 
-    userDropdown.appendChild(
-      document.createTextNode(user?.displayName || "Thành viên"),
-    );
+      // 2. Kiểm tra Role và thêm nút Dashboard bằng DOM
+      if (userData.role === "admin" && adminFeatureContainer) {
+        adminFeatureContainer.innerHTML = `
+                    <a class="nav-link text-warning" href="admin-dashboard.html">
+                        <i class="fa-solid fa-gauge"></i> Dashboard
+                    </a>`;
+      }
+    }
+
+    // Cập nhật tên hiển thị
+    userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> ${user.displayName || "Thành viên"}`;
 
     dropdownMenu.innerHTML = `
-      <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>Tài khoản</a></li>
-      <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử đơn</a></li>
-      <li><hr class="dropdown-divider bg-secondary"></li>
-      <li><a class="dropdown-item text-white" href="#" id="logoutBtn"><i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất</a></li>
-    `;
-
-    // Gắn sự kiện đăng xuất
+            <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>Tài khoản</a></li>
+            <li><hr class="dropdown-divider bg-secondary"></li>
+            <li><a class="dropdown-item text-white" href="#" id="logoutBtn">Đăng xuất</a></li>
+        `;
     document
       .getElementById("logoutBtn")
-      .addEventListener("click", handleLogout);
+      .addEventListener("click", () => signOut(auth));
   } else {
-    // Trường hợp: Chưa đăng nhập
+    // Trạng thái chưa đăng nhập
     userDropdown.innerHTML = `<i class="fa-regular fa-user"></i>`;
     dropdownMenu.innerHTML = `
-      <li><a class="dropdown-item text-white" href="login.html">Đăng nhập</a></li>
-      <li><a class="dropdown-item text-white" href="register.html">Đăng ký</a></li>
-    `;
+            <li><a class="dropdown-item text-white" href="login.html">Đăng nhập</a></li>
+            <li><a class="dropdown-item text-white" href="register.html">Đăng ký</a></li>
+        `;
   }
 };
 
