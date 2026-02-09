@@ -1,16 +1,8 @@
-// Trong js/home.js hoặc một file js quản lý trang
+// File js quản lý chung, như load navbar, lưu trang hiện tại, v.v.
 import { loadNavbar } from "./components.js";
+import { saveCurrentPage } from "./utils.js";
 
 // Hàm lưu trang hiện tại vào localStorage
-function saveCurrentPage() {
-  const path = window.location.pathname;
-  // Chỉ lưu nếu KHÔNG PHẢI là trang login hoặc register
-  if (!path.includes("login.html") && !path.includes("register.html")) {
-    localStorage.setItem("lastVisitedPage", window.location.href);
-  }
-}
-
-// Chạy hàm này ngay khi trang tải
 saveCurrentPage();
 
 // Sau đó mới gọi logic check Auth của Firebase để cập nhật menu
