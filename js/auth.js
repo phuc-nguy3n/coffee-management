@@ -18,6 +18,11 @@ import {
   getDoc,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+import { saveCurrentPage } from "./utils.js";
+
+// Chạy hàm này ngay khi trang tải
+saveCurrentPage();
+
 // Thêm một biến kiểm soát ở đầu file auth.js
 let isRegistering = false;
 
