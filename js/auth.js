@@ -1,5 +1,5 @@
 // Import đối tượng auth từ file cấu hình Firebase của bạn.
-import { auth } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 
 // Import hàm từ Firebase Auth SDK.
 import {
@@ -10,65 +10,23 @@ import {
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// ================= TỰ ĐỘNG QUẢN LÝ NAVBAR =================
+// Import các hàm Firestore cần thiết
+import {
+  doc,
+  setDoc,
+  serverTimestamp,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-/**
- * Hàm cập nhật giao diện Navbar dựa trên trạng thái người dùng
- * @param {Object|null} user - Đối tượng người dùng từ Firebase
- */
-const updateNavbarUI = (user) => {
-  const userDropdown = document.getElementById("userDropdown");
-  const dropdownMenu = document.querySelector("#userDropdown + .dropdown-menu");
+import { saveCurrentPage } from "./utils.js";
 
-  if (!userDropdown || !dropdownMenu) return; // Nếu trang không có Navbar thì bỏ qua
+// Chạy hàm này ngay khi trang tải
+saveCurrentPage();
 
-  if (user) {
-    // Trường hợp: Đã đăng nhập
-    userDropdown.replaceChildren();
+// Thêm một biến kiểm soát ở đầu file auth.js
+let isRegistering = false;
 
-    const icon = document.createElement("i");
-    icon.className = "fa-regular fa-user me-1";
-    userDropdown.appendChild(icon);
-
-    userDropdown.appendChild(
-      document.createTextNode(user?.displayName || "Thành viên"),
-    );
-
-    dropdownMenu.innerHTML = `
-      <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>Tài khoản</a></li>
-      <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử đơn</a></li>
-      <li><hr class="dropdown-divider bg-secondary"></li>
-      <li><a class="dropdown-item text-white" href="#" id="logoutBtn"><i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất</a></li>
-    `;
-
-    // Gắn sự kiện đăng xuất
-    document
-      .getElementById("logoutBtn")
-      .addEventListener("click", handleLogout);
-  } else {
-    // Trường hợp: Chưa đăng nhập
-    userDropdown.innerHTML = `<i class="fa-regular fa-user"></i>`;
-    dropdownMenu.innerHTML = `
-      <li><a class="dropdown-item text-white" href="login.html">Đăng nhập</a></li>
-      <li><a class="dropdown-item text-white" href="register.html">Đăng ký</a></li>
-    `;
-  }
-};
-
-// ================= ĐĂNH XUẤT =================
-const handleLogout = async (e) => {
-  e.preventDefault();
-  try {
-    await signOut(auth);
-    // Chuyển hướng ngay lập tức sau khi đăng xuất thành công.
-    window.location.replace("index.html");
-  } catch (error) {
-    console.error("Lỗi đăng xuất:", error);
-    alert("Đăng xuất thất bại. Vui lòng thử lại.");
-  }
-};
-
-// Lắng nghe trạng thái đăng nhập của Firebase trên toàn hệ thống
+// ================ LẮNG NGHE TRẠNG THÁI ĐĂNG NHẬP CỦA FIREBASE TRÊN TOÀN HỆ THỐNG =================
 onAuthStateChanged(auth, (user) => {
   // Cập nhật UI Navbar (hàm bạn đã viết)
   updateNavbarUI(user);
@@ -78,7 +36,7 @@ onAuthStateChanged(auth, (user) => {
   const isAuthPage =
     currentPage.includes("login.html") || currentPage.includes("register.html");
 
-  if (user && isAuthPage) {
+  if (user && isAuthPage && !isRegistering) {
     // Lấy đường dẫn đã lưu từ localStorage
     const lastPage = localStorage.getItem("lastVisitedPage");
 
@@ -102,7 +60,59 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// ================= ĐĂNG KÝ TAI KHOẢN MỚI =================
+// ================= TỰ ĐỘNG QUẢN LÝ NAVBAR =================
+
+/**
+ * Hàm cập nhật giao diện Navbar dựa trên trạng thái người dùng
+ * @param {Object|null} user - Đối tượng người dùng từ Firebase
+ */
+const updateNavbarUI = async (user) => {
+  const userDropdown = document.getElementById("userDropdown");
+  const dropdownMenu = document.querySelector("#userDropdown + .dropdown-menu");
+  const adminFeatureContainer = document.getElementById("admin-feature");
+
+  // Xóa nội dung cũ của vùng admin mỗi khi trạng thái thay đổi
+  if (adminFeatureContainer) adminFeatureContainer.innerHTML = "";
+
+  if (user) {
+    // 1. Lấy dữ liệu Role từ Firestore
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+
+      // 2. Kiểm tra Role và thêm nút Dashboard bằng DOM
+      if (userData.role === "admin" && adminFeatureContainer) {
+        adminFeatureContainer.innerHTML = `
+                    <a class="nav-link text-warning" href="../admin/dashboard.html">
+                        <i class="fa-solid fa-gauge"></i> Dashboard
+                    </a>`;
+      }
+    }
+
+    // Cập nhật tên hiển thị
+    userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> ${user.displayName || "Thành viên"}`;
+
+    dropdownMenu.innerHTML = `
+            <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>Tài khoản</a></li>
+            <li><hr class="dropdown-divider bg-secondary"></li>
+            <li><a class="dropdown-item text-white" href="#" id="logoutBtn">Đăng xuất</a></li>
+        `;
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", () => signOut(auth));
+  } else {
+    // Trạng thái chưa đăng nhập
+    userDropdown.innerHTML = `<i class="fa-regular fa-user"></i>`;
+    dropdownMenu.innerHTML = `
+            <li><a class="dropdown-item text-white" href="login.html">Đăng nhập</a></li>
+            <li><a class="dropdown-item text-white" href="register.html">Đăng ký</a></li>
+        `;
+  }
+};
+
+// ================= ĐĂNG KÝ TÀI KHOẢN MỚI =================
 
 // Lấy thẻ <form> có id là registerForm trong HTML và gán vào biến registerForm.
 const registerForm = document.getElementById("registerForm");
@@ -115,6 +125,9 @@ if (registerForm) {
   registerForm.addEventListener("submit", async (e) => {
     // Ngăn trình duyệt reload trang khi submit form
     e.preventDefault();
+
+    // Bật cờ đăng ký để ngăn onAuthStateChanged chuyển hướng
+    isRegistering = true;
 
     // Lấy dữ liệu người dùng nhập
     const name = document.getElementById("registerName").value;
@@ -136,15 +149,32 @@ if (registerForm) {
       // - email: email người dùng nhập
       // - password: mật khẩu người dùng nhập
       // Nếu thành công, Firebase trả về userCredential (chứa thông tin user vừa tạo)
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password,
       );
+      const user = userCredential.user;
+
       // Cập nhật tên hiển thị cho người dùng
       //   userCredential.user: user hiện tại
       //   { displayName: name }: set tên hiển thị = tên người dùng nhập
-      await updateProfile(userCredential.user, { displayName: name });
+      await updateProfile(user, { displayName: name });
+
+      // Lưu thông tin bổ sung vào Firestore
+      // Chúng ta dùng UID làm Document ID để dễ dàng truy vấn sau này
+
+      await setDoc(doc(db, "users", user.uid), {
+        displayName: name,
+        email: email,
+        role: "customer",
+        createdAt: serverTimestamp(), // Lưu thời gian theo chuẩn Firebase
+        updatedAt: serverTimestamp(),
+      });
+
+      // Sau khi lưu xong mọi thứ, đăng xuất để user không bị tự động đăng nhập
+      await signOut(auth);
 
       //   Hiện thông báo đăng ký thành công
       alert("Đăng ký thành công!");
@@ -155,6 +185,9 @@ if (registerForm) {
       // Nếu có lỗi khi tạo tài khoản hoặc update profile thì nhảy vào đây
       // Hiện thông báo lỗi từ Firebase (ví dụ: email đã tồn tại, mật khẩu quá yếu, v.v.)
       alert("Lỗi: " + error.message);
+    } finally {
+      // Luôn tắt cờ ở cuối quá trình
+      isRegistering = false;
     }
   });
 }
@@ -198,3 +231,16 @@ if (loginForm) {
     }
   });
 }
+
+// ================= ĐĂNH XUẤT =================
+const handleLogout = async (e) => {
+  e.preventDefault();
+  try {
+    await signOut(auth);
+    // Chuyển hướng ngay lập tức sau khi đăng xuất thành công.
+    window.location.replace("index.html");
+  } catch (error) {
+    console.error("Lỗi đăng xuất:", error);
+    alert("Đăng xuất thất bại. Vui lòng thử lại.");
+  }
+};

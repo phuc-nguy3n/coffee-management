@@ -1,12 +1,6 @@
 // Import các hàm cần thiết từ Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
-  getDocs,
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Cấu hình Firebase của riêng bạn (Lấy từ Firebase Console)
@@ -24,7 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Khởi tạo Firestore
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 // Khởi tạo Authentication
 export const auth = getAuth(app);
