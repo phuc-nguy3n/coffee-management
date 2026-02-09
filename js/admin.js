@@ -288,7 +288,17 @@ const renderProductCheckboxes = () => {
             <span class="text-warning me-3">${p.price.toLocaleString()}đ</span>
             <div class="d-flex align-items-center bg-dark rounded border border-secondary">
                 <button type="button" class="btn btn-sm text-white px-2" onclick="updateQty('${docSnap.id}', -1)">-</button>
-                <span id="qty-${docSnap.id}" class="px-2 fw-bold text-white" style="min-width: 30px; text-align: center;">1</span>
+                <input
+                  id="qty-${docSnap.id}"
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  value="1"
+                  class="form-control form-control-sm text-center text-white bg-dark border-0 px-2"
+                  style="width: 60px;"
+                  oninput="setQty('${docSnap.id}', this.value, false)"
+                  onblur="setQty('${docSnap.id}', this.value, true)"
+                />
                 <button type="button" class="btn btn-sm text-white px-2" onclick="updateQty('${docSnap.id}', 1)">+</button>
             </div>
           </div>
@@ -302,8 +312,27 @@ const renderProductCheckboxes = () => {
 
 window.updateQty = (id, change) => {
   const qtyElement = document.getElementById(`qty-${id}`);
-  let currentQty = parseInt(qtyElement.innerText) + change;
-  qtyElement.innerText = currentQty < 1 ? 1 : currentQty;
+  const current = parseInt(qtyElement.value || "1");
+  const next = Number.isFinite(current) ? current + change : 1 + change;
+  qtyElement.value = next < 1 ? 1 : next;
+  calculateOrderTotal();
+};
+
+window.setQty = (id, value, enforceMin) => {
+  const qtyElement = document.getElementById(`qty-${id}`);
+  if (value === "") {
+    if (enforceMin) qtyElement.value = 1;
+    calculateOrderTotal();
+    return;
+  }
+
+  const digitsOnly = value.replace(/\D+/g, "");
+  if (digitsOnly !== value) qtyElement.value = digitsOnly;
+
+  const parsed = parseInt(digitsOnly);
+  if (enforceMin) {
+    qtyElement.value = !Number.isFinite(parsed) || parsed < 1 ? 1 : parsed;
+  }
   calculateOrderTotal();
 };
 
@@ -311,7 +340,7 @@ const calculateOrderTotal = () => {
   let total = 0;
   document.querySelectorAll(".product-select:checked").forEach((chk) => {
     const id = chk.id.replace("chk-", "");
-    const qty = parseInt(document.getElementById(`qty-${id}`).innerText);
+    const qty = parseInt(document.getElementById(`qty-${id}`).value || "0");
     total += Number(chk.value) * qty;
   });
   if (document.getElementById("orderTotal"))
@@ -368,8 +397,8 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
       const items = [];
       document.querySelectorAll(".product-select:checked").forEach((chk) => {
         const qty = parseInt(
-          document.getElementById(`qty-${chk.id.replace("chk-", "")}`)
-            .innerText,
+          document.getElementById(`qty-${chk.id.replace("chk-", "")}`).value ||
+            "1",
         );
         items.push({
           name: chk.getAttribute("data-name"),
