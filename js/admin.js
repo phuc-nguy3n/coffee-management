@@ -1,36 +1,22 @@
 // js/admin.js
-import { auth, db } from "./firebase-config.js";
+import { auth } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  serverTimestamp,
-  getDoc,
-  query,
-  orderBy,
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import * as dbService from "./services.js";
 
 // ================= CẤU HÌNH & KHỞI TẠO =================
-const productCollection = collection(db, "products");
-const orderCollection = collection(db, "orders");
-const userCollection = collection(db, "users");
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    if (userDoc.exists() && userDoc.data().role === "admin") {
+    const role = await dbService.getUserRole(user.uid); //
+    if (role === "admin") {
       setupNavigation();
       initDataListeners();
     } else {
       alert("Bạn không có quyền truy cập!");
-      window.location.href = "index.html";
+      window.location.href = "../index.html";
     }
   } else {
-    window.location.href = "login.html";
+    window.location.href = "../login.html";
   }
 });
 
@@ -41,6 +27,7 @@ const initDataListeners = () => {
 };
 
 // ================= ĐIỀU HƯỚNG TABS =================
+
 const setupNavigation = () => {
   const navLinks = document.querySelectorAll(
     "#sidebar-wrapper .list-group-item",
@@ -70,8 +57,7 @@ const setupNavigation = () => {
 
 // --- Hiển thị danh sách sản phẩm ---
 const loadProducts = () => {
-  const q = query(productCollection, orderBy("createdAt", "desc"));
-  onSnapshot(q, (snapshot) => {
+  dbService.subscribeProducts((snapshot) => {
     const list = document.getElementById("product-list-render");
     const statProducts = document.getElementById("stat-products");
 
@@ -114,16 +100,14 @@ if (productForm) {
       name: document.getElementById("pName").value,
       price: Number(document.getElementById("pPrice").value),
       imageUrl: document.getElementById("pImg").value,
-      updatedAt: serverTimestamp(),
     };
 
     try {
       if (id) {
-        await updateDoc(doc(db, "products", id), data);
+        await dbService.updateProduct(id, data);
         alert("Cập nhật thành công!");
       } else {
-        data.createdAt = serverTimestamp();
-        await addDoc(productCollection, data);
+        await dbService.addProduct(data);
         alert("Thêm món mới thành công!");
       }
       bootstrap.Modal.getInstance(
@@ -136,7 +120,6 @@ if (productForm) {
   });
 }
 
-// --- Window Functions Sản phẩm ---
 window.openAddModal = () => {
   productForm.reset();
   document.getElementById("productId").value = "";
@@ -156,7 +139,7 @@ window.editProduct = (id, name, price, img) => {
 window.deleteProduct = async (id) => {
   if (confirm("Bạn có chắc muốn xóa món này?")) {
     try {
-      await deleteDoc(doc(db, "products", id));
+      await dbService.deleteProductById(id);
     } catch (error) {
       alert("Lỗi khi xóa: " + error.message);
     }
@@ -167,8 +150,7 @@ window.deleteProduct = async (id) => {
 
 // --- Hiển thị danh sách đơn hàng ---
 const loadOrders = () => {
-  const q = query(orderCollection, orderBy("createdAt", "desc"));
-  onSnapshot(q, (snapshot) => {
+  dbService.subscribeOrders((snapshot) => {
     const list = document.getElementById("order-list-render");
     const statOrders = document.getElementById("stat-orders");
     if (statOrders) statOrders.innerText = snapshot.size;
@@ -193,7 +175,7 @@ const loadOrders = () => {
   });
 };
 
-// --- Logic Tạo Đơn Hàng & Tính Toán ---
+// --- Logic Tạo Đơn Hàng & Tăng/Giảm Số Lượng ---
 window.openOrderModal = () => {
   document.getElementById("orderForm").reset();
   document.getElementById("currentOrderId").value = "";
@@ -212,7 +194,7 @@ window.openOrderModal = () => {
 
 const renderProductCheckboxes = () => {
   const container = document.getElementById("product-checkbox-list");
-  onSnapshot(productCollection, (snapshot) => {
+  dbService.subscribeProducts((snapshot) => {
     container.innerHTML = "";
     snapshot.forEach((docSnap) => {
       const p = docSnap.data();
@@ -258,7 +240,7 @@ const calculateOrderTotal = () => {
 
 // --- Xem Chi Tiết & Lưu Đơn Hàng ---
 window.viewOrderDetail = async (id) => {
-  const docSnap = await getDoc(doc(db, "orders", id));
+  const docSnap = await dbService.getOrderById(id);
   if (docSnap.exists()) {
     const o = docSnap.data();
     document.getElementById("currentOrderId").value = id;
@@ -297,10 +279,10 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
   const id = document.getElementById("currentOrderId").value;
   try {
     if (id) {
-      await updateDoc(doc(db, "orders", id), {
-        status: document.getElementById("orderStatus").value,
-        updatedAt: serverTimestamp(),
-      });
+      await dbService.updateOrderStatus(
+        id,
+        document.getElementById("orderStatus").value,
+      );
       alert("Cập nhật trạng thái thành công!");
     } else {
       const items = [];
@@ -316,12 +298,11 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
         });
       });
       if (items.length === 0) return alert("Vui lòng chọn món!");
-      await addDoc(orderCollection, {
+
+      await dbService.createOrder({
         customerName: document.getElementById("orderCustomer").value,
         items,
         total: Number(document.getElementById("orderTotal").value),
-        status: "Đang chờ",
-        createdAt: serverTimestamp(),
       });
       alert("Tạo đơn hàng thành công!");
     }
@@ -332,14 +313,21 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
 });
 
 // ================= QUẢN LÝ KHÁCH HÀNG =================
+
 const loadCustomers = () => {
-  onSnapshot(userCollection, (snapshot) => {
+  dbService.subscribeCustomers((snapshot) => {
     const list = document.getElementById("customer-list-render");
     if (!list) return;
     list.innerHTML = "";
     snapshot.forEach((docSnap) => {
       const u = docSnap.data();
-      list.innerHTML += `<tr><td>${u.displayName || "N/A"}</td><td>${u.email}</td><td><span class="badge bg-info">${u.role}</span></td><td>${u.createdAt?.toDate().toLocaleDateString("vi-VN") || "N/A"}</td></tr>`;
+      list.innerHTML += `
+        <tr>
+          <td>${u.displayName || "N/A"}</td>
+          <td>${u.email}</td>
+          <td><span class="badge bg-info">${u.role}</span></td>
+          <td>${u.createdAt?.toDate().toLocaleDateString("vi-VN") || "N/A"}</td>
+        </tr>`;
     });
   });
 };
