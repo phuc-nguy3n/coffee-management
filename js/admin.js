@@ -64,28 +64,79 @@ const loadProducts = () => {
     if (statProducts) statProducts.innerText = snapshot.size;
     if (!list) return;
 
-    list.innerHTML = "";
+    // Clear safely
+    list.textContent = "";
+
     snapshot.forEach((docSnap) => {
       const p = docSnap.data();
-      const timeString = p.createdAt
-        ? p.createdAt.toDate().toLocaleString("vi-VN")
-        : "Đang xử lý...";
+      const tr = document.createElement("tr");
 
-      list.innerHTML += `
-        <tr>
-          <td><img src="${p.imageUrl}" width="40" height="40" class="rounded" style="object-fit:cover"></td>
-          <td>${p.name}</td>
-          <td>${p.price.toLocaleString()}đ</td>
-          <td>${timeString}</td>
-          <td>
-            <button onclick="editProduct('${docSnap.id}', '${p.name}', ${p.price}, '${p.imageUrl}')" class="btn btn-sm btn-warning me-2">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button onclick="deleteProduct('${docSnap.id}')" class="btn btn-sm btn-danger">
-              <i class="fas fa-trash"></i>
-            </button>
-          </td>
-        </tr>`;
+      // Image cell
+      const tdImg = document.createElement("td");
+      const img = document.createElement("img");
+      img.width = 40;
+      img.height = 40;
+      img.className = "rounded";
+      img.style.objectFit = "cover";
+      img.alt = p?.name || "product";
+      img.src = p?.imageUrl || "";
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = "";
+      };
+      tdImg.appendChild(img);
+
+      // Name
+      const tdName = document.createElement("td");
+      tdName.textContent = p?.name || "";
+
+      // Price
+      const tdPrice = document.createElement("td");
+      const price = Number(p?.price ?? 0);
+      tdPrice.textContent = `${price.toLocaleString()}đ`;
+
+      // Time
+      const tdTime = document.createElement("td");
+      const timeString =
+        p?.createdAt && typeof p.createdAt.toDate === "function"
+          ? p.createdAt.toDate().toLocaleString("vi-VN")
+          : "Đang xử lý...";
+      tdTime.textContent = timeString;
+
+      // Actions
+      const tdActions = document.createElement("td");
+
+      const editBtn = document.createElement("button");
+      editBtn.className = "btn btn-sm btn-warning me-2";
+      const editIcon = document.createElement("i");
+      editIcon.className = "fas fa-edit";
+      editBtn.appendChild(editIcon);
+      editBtn.addEventListener("click", () =>
+        window.editProduct(
+          docSnap.id,
+          p?.name || "",
+          Number(p?.price ?? 0),
+          p?.imageUrl || "",
+        ),
+      );
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-sm btn-danger";
+      const delIcon = document.createElement("i");
+      delIcon.className = "fas fa-trash";
+      delBtn.appendChild(delIcon);
+      delBtn.addEventListener("click", () => window.deleteProduct(docSnap.id));
+
+      tdActions.appendChild(editBtn);
+      tdActions.appendChild(delBtn);
+
+      tr.appendChild(tdImg);
+      tr.appendChild(tdName);
+      tr.appendChild(tdPrice);
+      tr.appendChild(tdTime);
+      tr.appendChild(tdActions);
+
+      list.appendChild(tr);
     });
   });
 };
@@ -156,21 +207,50 @@ const loadOrders = () => {
     if (statOrders) statOrders.innerText = snapshot.size;
     if (!list) return;
 
-    list.innerHTML = "";
+    list.textContent = "";
+
     snapshot.forEach((docSnap) => {
       const o = docSnap.data();
-      const timeString = o.createdAt
-        ? o.createdAt.toDate().toLocaleString("vi-VN")
-        : "Đang xử lý...";
-      list.innerHTML += `
-        <tr>
-          <td>#${docSnap.id.slice(0, 5)}</td>
-          <td>${o.customerName || "Khách tại quầy"}</td>
-          <td>${(o.total || 0).toLocaleString()}đ</td>
-          <td><span class="badge ${o.status === "Hoàn thành" ? "bg-success" : "bg-warning"}">${o.status}</span></td>
-          <td>${timeString}</td>
-          <td><button onclick="viewOrderDetail('${docSnap.id}')" class="btn btn-sm btn-primary">Chi tiết</button></td>
-        </tr>`;
+      const tr = document.createElement("tr");
+
+      const tdId = document.createElement("td");
+      tdId.textContent = `#${docSnap.id.slice(0, 5)}`;
+
+      const tdCustomer = document.createElement("td");
+      tdCustomer.textContent = o?.customerName || "Khách tại quầy";
+
+      const tdTotal = document.createElement("td");
+      tdTotal.textContent = `${Number(o?.total ?? 0).toLocaleString()}đ`;
+
+      const tdStatus = document.createElement("td");
+      const badge = document.createElement("span");
+      const status = o?.status || "";
+      badge.className = `badge ${status === "Hoàn thành" ? "bg-success" : "bg-warning"}`;
+      badge.textContent = status;
+      tdStatus.appendChild(badge);
+
+      const tdTime = document.createElement("td");
+      const timeString =
+        o?.createdAt && typeof o.createdAt.toDate === "function"
+          ? o.createdAt.toDate().toLocaleString("vi-VN")
+          : "Đang xử lý...";
+      tdTime.textContent = timeString;
+
+      const tdAction = document.createElement("td");
+      const btn = document.createElement("button");
+      btn.className = "btn btn-sm btn-primary";
+      btn.textContent = "Chi tiết";
+      btn.addEventListener("click", () => window.viewOrderDetail(docSnap.id));
+      tdAction.appendChild(btn);
+
+      tr.appendChild(tdId);
+      tr.appendChild(tdCustomer);
+      tr.appendChild(tdTotal);
+      tr.appendChild(tdStatus);
+      tr.appendChild(tdTime);
+      tr.appendChild(tdAction);
+
+      list.appendChild(tr);
     });
   });
 };
@@ -318,16 +398,37 @@ const loadCustomers = () => {
   dbService.subscribeCustomers((snapshot) => {
     const list = document.getElementById("customer-list-render");
     if (!list) return;
-    list.innerHTML = "";
+
+    list.textContent = "";
     snapshot.forEach((docSnap) => {
       const u = docSnap.data();
-      list.innerHTML += `
-        <tr>
-          <td>${u.displayName || "N/A"}</td>
-          <td>${u.email}</td>
-          <td><span class="badge bg-info">${u.role}</span></td>
-          <td>${u.createdAt?.toDate().toLocaleDateString("vi-VN") || "N/A"}</td>
-        </tr>`;
+      const tr = document.createElement("tr");
+
+      const tdName = document.createElement("td");
+      tdName.textContent = u?.displayName || "N/A";
+
+      const tdEmail = document.createElement("td");
+      tdEmail.textContent = u?.email || "";
+
+      const tdRole = document.createElement("td");
+      const roleBadge = document.createElement("span");
+      roleBadge.className = "badge bg-info";
+      roleBadge.textContent = u?.role || "";
+      tdRole.appendChild(roleBadge);
+
+      const tdCreated = document.createElement("td");
+      const createdText =
+        u?.createdAt && typeof u.createdAt.toDate === "function"
+          ? u.createdAt.toDate().toLocaleDateString("vi-VN")
+          : "N/A";
+      tdCreated.textContent = createdText;
+
+      tr.appendChild(tdName);
+      tr.appendChild(tdEmail);
+      tr.appendChild(tdRole);
+      tr.appendChild(tdCreated);
+
+      list.appendChild(tr);
     });
   });
 };
