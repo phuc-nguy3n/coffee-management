@@ -76,3 +76,25 @@ export const getUserRole = async (uid) => {
   const userDoc = await getDoc(doc(db, "users", uid));
   return userDoc.exists() ? userDoc.data().role : null;
 };
+
+//  ================= DỊCH VỤ TẢI FILE NÀY MÁY TÍNH LÊN MÁY CHỦ =================
+export const uploadImageToServer = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  try {
+    const response = await fetch("http://localhost:5000/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error("Upload thất bại");
+
+    const result = await response.json();
+    return result.url; // Đây là link ảnh từ Cloudinary
+  } catch (error) {
+    console.error("Lỗi upload:", error);
+    alert("Không thể tải ảnh lên server!");
+    return null;
+  }
+};
