@@ -36,11 +36,15 @@ const validateImageFile = (file) => {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
     return {
       ok: false,
-      message: "Định dạng ảnh không hợp lệ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.",
+      message:
+        "Định dạng ảnh không hợp lệ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.",
     };
   }
   if (file.size > MAX_IMAGE_BYTES) {
-    return { ok: false, message: "Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB." };
+    return {
+      ok: false,
+      message: "Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.",
+    };
   }
   return { ok: true };
 };
@@ -72,7 +76,9 @@ const renderPreviewFromFile = (file) => {
     }
     imgPreview.src = "";
     imgPreview.classList.add("d-none");
-    setImageError("Khong the hien thi anh.");
+    setImageError(
+      "Không thể hiển thị ảnh đã chọn. Vui lòng thử lại với một ảnh khác.",
+    );
   };
 };
 
@@ -109,7 +115,8 @@ const bindProductForm = () => {
     const originalHtml = submitBtn?.innerHTML;
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
+      submitBtn.innerHTML =
+        '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
     }
 
     try {
@@ -130,7 +137,10 @@ const bindProductForm = () => {
 
         const uploadResult = await dbService.uploadImageToServer(file);
         if (!uploadResult?.url) {
-          setImageError(uploadResult?.errorMessage || "Không thể tải ảnh lên server. Vui lòng thử lại.");
+          setImageError(
+            uploadResult?.errorMessage ||
+              "Không thể tải ảnh lên server. Vui lòng thử lại.",
+          );
           return;
         }
         imageUrl = uploadResult.url;
@@ -150,7 +160,9 @@ const bindProductForm = () => {
         alert("Thêm món mới thành công!");
       }
 
-      bootstrap.Modal.getInstance(document.getElementById("productModal")).hide();
+      bootstrap.Modal.getInstance(
+        document.getElementById("productModal"),
+      ).hide();
       productForm.reset();
       renderPreviewFromUrl("");
       setImageError("");
@@ -197,12 +209,17 @@ const loadProducts = () => {
         e.target.src = "";
       };
 
-      tr
-        .querySelector(".js-edit-product")
-        .addEventListener("click", () => window.editProduct(docSnap.id, p?.name || "", Number(p?.price ?? 0), p?.imageUrl || ""));
-      tr
-        .querySelector(".js-delete-product")
-        .addEventListener("click", () => window.deleteProduct(docSnap.id));
+      tr.querySelector(".js-edit-product").addEventListener("click", () =>
+        window.editProduct(
+          docSnap.id,
+          p?.name || "",
+          Number(p?.price ?? 0),
+          p?.imageUrl || "",
+        ),
+      );
+      tr.querySelector(".js-delete-product").addEventListener("click", () =>
+        window.deleteProduct(docSnap.id),
+      );
 
       list.appendChild(tr);
     });

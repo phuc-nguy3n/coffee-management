@@ -1,6 +1,9 @@
 import { auth, db } from "../firebase-config.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {
+  doc,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const ADMIN_DASHBOARD_PATH = "../admin/dashboard.html";
 
@@ -17,7 +20,7 @@ const renderUserMenu = (userDropdown, dropdownMenu, user) => {
   dropdownMenu.innerHTML = `
     <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>Tài khoản</a></li>
     <li><hr class="dropdown-divider bg-secondary"></li>
-    <li><a class="dropdown-item text-white" href="#" id="logoutBtn">Đăng xuất</a></li>
+    <li><span role="button" class="dropdown-item text-white " id="logoutBtn">Đăng xuất</span></li>
   `;
 
   document
