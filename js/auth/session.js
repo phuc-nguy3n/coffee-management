@@ -7,7 +7,8 @@ const getRedirectUrl = () => {
   if (!lastPage) return "index.html";
 
   try {
-    const parsed = new URL(lastPage, window.location.origin);
+    // Ensure lastPage is a string to prevent prototype pollution.
+    const parsed = new URL(String(lastPage), window.location.origin);
     return parsed.origin === window.location.origin ? parsed.href : "index.html";
   } catch (error) {
     console.error("Invalid URL in lastVisitedPage:", error);
