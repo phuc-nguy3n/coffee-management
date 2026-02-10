@@ -96,6 +96,13 @@ export const uploadImageToServer = async (file) => {
       };
     }
 
+    if (!result?.url) {
+      return {
+        url: null,
+        errorMessage: "Server không trả về URL ảnh hợp lệ.",
+      };
+    }
+
     return { url: result.url, errorMessage: null }; // Trả về URL ảnh nếu thành công
   } catch (error) {
     console.error("Lỗi upload:", error);
