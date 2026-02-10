@@ -158,13 +158,16 @@ const setImageError = (message) => {
     imgError.classList.remove("d-none");
     imgFileInput.classList.add("is-invalid");
   } else {
-    imgError.textContent = "";
-    imgError.classList.add("d-none");
-    imgFileInput.classList.remove("is-invalid");
-  }
-};
-
-const clearImageSelection = () => {
+    let currentObjectUrl = null;
+    const renderPreviewFromFile = (file) => {
+      if (!imgPreview) return;
+      if (currentObjectUrl) {
+        URL.revokeObjectURL(currentObjectUrl);
+      }
+      currentObjectUrl = URL.createObjectURL(file);
+      imgPreview.src = currentObjectUrl;
+      imgPreview.classList.remove("d-none");
+    };
   if (imgFileInput) imgFileInput.value = "";
   if (imgPreview) {
     imgPreview.src = "";
