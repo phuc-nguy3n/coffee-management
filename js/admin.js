@@ -148,6 +148,9 @@ const imgUrlInput = document.getElementById("pImgUrl");
 const imgPreview = document.getElementById("pImgPreview");
 const imgError = document.getElementById("pImgError");
 
+// Track current object URL to prevent memory leaks when updating previews
+let currentObjectUrl = null;
+
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -158,18 +161,20 @@ const setImageError = (message) => {
     imgError.classList.remove("d-none");
     imgFileInput.classList.add("is-invalid");
   } else {
-    let currentObjectUrl = null;
-    const renderPreviewFromFile = (file) => {
-      if (!imgPreview) return;
-      if (currentObjectUrl) {
-        URL.revokeObjectURL(currentObjectUrl);
-      }
-      currentObjectUrl = URL.createObjectURL(file);
-      imgPreview.src = currentObjectUrl;
-      imgPreview.classList.remove("d-none");
-    };
+    imgError.textContent = "";
+    imgError.classList.add("d-none");
+    imgFileInput.classList.remove("is-invalid");
+  }
+};
+
+const clearImageSelection = () => {
   if (imgFileInput) imgFileInput.value = "";
   if (imgPreview) {
+    // Revoke any existing object URL when clearing selection
+    if (currentObjectUrl) {
+      URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = null;
+    }
     imgPreview.src = "";
     imgPreview.classList.add("d-none");
   }
@@ -196,6 +201,11 @@ const validateImageFile = (file) => {
 
 const renderPreviewFromUrl = (url) => {
   if (!imgPreview) return;
+  // If switching to a normal URL, ensure any previous object URL is revoked
+  if (currentObjectUrl) {
+    URL.revokeObjectURL(currentObjectUrl);
+    currentObjectUrl = null;
+  }
   if (url) {
     imgPreview.src = url;
     imgPreview.classList.remove("d-none");
@@ -207,12 +217,18 @@ const renderPreviewFromUrl = (url) => {
 
 const renderPreviewFromFile = (file) => {
   if (!imgPreview) return;
-  const objectUrl = URL.createObjectURL(file);
-  imgPreview.src = objectUrl;
+  // Revoke previous object URL before creating a new one
+  if (currentObjectUrl) {
+    URL.revokeObjectURL(currentObjectUrl);
+  }
+  currentObjectUrl = URL.createObjectURL(file);
+  imgPreview.src = currentObjectUrl;
   imgPreview.classList.remove("d-none");
-  imgPreview.onload = () => URL.revokeObjectURL(objectUrl);
   imgPreview.onerror = () => {
-    URL.revokeObjectURL(objectUrl);
+    if (currentObjectUrl) {
+      URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = null;
+    }
     imgPreview.src = "";
     imgPreview.classList.add("d-none");
     setImageError("Khong the hien thi anh.");
