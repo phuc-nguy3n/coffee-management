@@ -76,3 +76,39 @@ export const getUserRole = async (uid) => {
   const userDoc = await getDoc(doc(db, "users", uid));
   return userDoc.exists() ? userDoc.data().role : null;
 };
+
+//  ================= DỊCH VỤ TẢI FILE NÀY MÁY TÍNH LÊN MÁY CHỦ =================
+export const uploadImageToServer = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  try {
+    const response = await fetch("http://localhost:5000/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return {
+        url: null,
+        errorMessage: result?.message || "Upload thất bại",
+      };
+    }
+
+    if (!result?.url) {
+      return {
+        url: null,
+        errorMessage: "Server không trả về URL ảnh hợp lệ.",
+      };
+    }
+
+    return { url: result.url, errorMessage: null }; // Trả về URL ảnh nếu thành công
+  } catch (error) {
+    console.error("Lỗi upload:", error);
+    return {
+      url: null,
+      errorMessage: "Không thể tải ảnh lên server!",
+    };
+  }
+};

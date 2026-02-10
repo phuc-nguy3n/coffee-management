@@ -143,17 +143,165 @@ const loadProducts = () => {
 
 // --- Xử lý Form Thêm/Sửa sản phẩm ---
 const productForm = document.getElementById("productForm");
+const imgFileInput = document.getElementById("pImgFile");
+const imgUrlInput = document.getElementById("pImgUrl");
+const imgPreview = document.getElementById("pImgPreview");
+const imgError = document.getElementById("pImgError");
+
+// Track current object URL to prevent memory leaks when updating previews
+let currentObjectUrl = null;
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+const setImageError = (message) => {
+  if (!imgError || !imgFileInput) return;
+  if (message) {
+    imgError.textContent = message;
+    imgError.classList.remove("d-none");
+    imgFileInput.classList.add("is-invalid");
+  } else {
+    imgError.textContent = "";
+    imgError.classList.add("d-none");
+    imgFileInput.classList.remove("is-invalid");
+  }
+};
+
+const clearImageSelection = () => {
+  if (imgFileInput) imgFileInput.value = "";
+  if (imgPreview) {
+    // Revoke any existing object URL when clearing selection
+    if (currentObjectUrl) {
+      URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = null;
+    }
+    imgPreview.src = "";
+    imgPreview.classList.add("d-none");
+  }
+  setImageError("");
+};
+
+const validateImageFile = (file) => {
+  if (!file) return { ok: false, message: "Vui lòng chọn ảnh sản phẩm!" };
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return {
+      ok: false,
+      message:
+        "Định dạng ảnh không hợp lệ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.",
+    };
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    return {
+      ok: false,
+      message: "Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.",
+    };
+  }
+  return { ok: true };
+};
+
+const renderPreviewFromUrl = (url) => {
+  if (!imgPreview) return;
+  // If switching to a normal URL, ensure any previous object URL is revoked
+  if (currentObjectUrl) {
+    URL.revokeObjectURL(currentObjectUrl);
+    currentObjectUrl = null;
+  }
+  if (url) {
+    imgPreview.src = url;
+    imgPreview.classList.remove("d-none");
+  } else {
+    imgPreview.src = "";
+    imgPreview.classList.add("d-none");
+  }
+};
+
+const renderPreviewFromFile = (file) => {
+  if (!imgPreview) return;
+  // Revoke previous object URL before creating a new one
+  if (currentObjectUrl) {
+    URL.revokeObjectURL(currentObjectUrl);
+  }
+  currentObjectUrl = URL.createObjectURL(file);
+  imgPreview.src = currentObjectUrl;
+  imgPreview.classList.remove("d-none");
+  imgPreview.onerror = () => {
+    if (currentObjectUrl) {
+      URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = null;
+    }
+    imgPreview.src = "";
+    imgPreview.classList.add("d-none");
+    setImageError("Khong the hien thi anh.");
+  };
+};
+
+if (imgFileInput) {
+  imgFileInput.addEventListener("change", () => {
+    const file = imgFileInput.files?.[0];
+    if (file) {
+      const validation = validateImageFile(file);
+      if (!validation.ok) {
+        clearImageSelection();
+        setImageError(validation.message);
+        return;
+      }
+      setImageError("");
+      renderPreviewFromFile(file);
+    } else {
+      setImageError("");
+      renderPreviewFromUrl(imgUrlInput?.value || "");
+    }
+  });
+}
+
 if (productForm) {
   productForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const id = document.getElementById("productId").value;
-    const data = {
-      name: document.getElementById("pName").value,
-      price: Number(document.getElementById("pPrice").value),
-      imageUrl: document.getElementById("pImg").value,
-    };
+
+    const submitBtn = productForm.querySelector('[type="submit"]');
+    const originalHtml = submitBtn ? submitBtn.innerHTML : null;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
+    }
 
     try {
+      const id = document.getElementById("productId").value;
+      const name = document.getElementById("pName").value;
+      const price = Number(document.getElementById("pPrice").value);
+
+      let imageUrl = imgUrlInput?.value || "";
+      const file = imgFileInput?.files?.[0];
+
+      if (file) {
+        const validation = validateImageFile(file);
+        if (!validation.ok) {
+          clearImageSelection();
+          setImageError(validation.message);
+          return;
+        }
+
+        const uploadResult = await dbService.uploadImageToServer(file);
+        if (!uploadResult?.url) {
+          setImageError(
+            uploadResult?.errorMessage ||
+              "Không thể tải ảnh lên server. Vui lòng thử lại.",
+          );
+          return;
+        }
+        imageUrl = uploadResult.url;
+      } else if (!imageUrl) {
+        setImageError("Vui lòng chọn ảnh sản phẩm!");
+        return;
+      }
+
+      setImageError("");
+      const data = {
+        name,
+        price,
+        imageUrl,
+      };
+
       if (id) {
         await dbService.updateProduct(id, data);
         alert("Cập nhật thành công!");
@@ -165,8 +313,17 @@ if (productForm) {
         document.getElementById("productModal"),
       ).hide();
       productForm.reset();
+      renderPreviewFromUrl("");
+      setImageError("");
+      if (imgFileInput) imgFileInput.required = true;
+      if (imgUrlInput) imgUrlInput.value = "";
     } catch (error) {
       console.error("Lỗi:", error);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHtml ?? submitBtn.innerHTML;
+      }
     }
   });
 }
@@ -175,6 +332,13 @@ window.openAddModal = () => {
   productForm.reset();
   document.getElementById("productId").value = "";
   document.getElementById("modalTitle").innerText = "Thêm Sản Phẩm Mới";
+  if (imgFileInput) {
+    imgFileInput.value = "";
+    imgFileInput.required = true;
+  }
+  if (imgUrlInput) imgUrlInput.value = "";
+  renderPreviewFromUrl("");
+  setImageError("");
   new bootstrap.Modal(document.getElementById("productModal")).show();
 };
 
@@ -182,7 +346,13 @@ window.editProduct = (id, name, price, img) => {
   document.getElementById("productId").value = id;
   document.getElementById("pName").value = name;
   document.getElementById("pPrice").value = price;
-  document.getElementById("pImg").value = img;
+  if (imgUrlInput) imgUrlInput.value = img || "";
+  if (imgFileInput) {
+    imgFileInput.value = "";
+    imgFileInput.required = false;
+  }
+  renderPreviewFromUrl(img || "");
+  setImageError("");
   document.getElementById("modalTitle").innerText = "Chỉnh sửa sản phẩm";
   new bootstrap.Modal(document.getElementById("productModal")).show();
 };
@@ -383,8 +553,17 @@ window.viewOrderDetail = async (id) => {
   }
 };
 
-document.getElementById("orderForm").addEventListener("submit", async (e) => {
+const orderFormEl = document.getElementById("orderForm");
+orderFormEl.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  const submitBtn = document.getElementById("btnOrderSubmit") || orderFormEl.querySelector('[type="submit"]');
+  const originalHtml = submitBtn ? submitBtn.innerHTML : null;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
+  }
+
   const id = document.getElementById("currentOrderId").value;
   try {
     if (id) {
@@ -406,7 +585,10 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
           price: Number(chk.value),
         });
       });
-      if (items.length === 0) return alert("Vui lòng chọn món!");
+      if (items.length === 0) {
+        alert("Vui lòng chọn món!");
+        return;
+      }
 
       await dbService.createOrder({
         customerName: document.getElementById("orderCustomer").value,
@@ -418,6 +600,11 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
     bootstrap.Modal.getInstance(document.getElementById("orderModal")).hide();
   } catch (error) {
     alert("Lỗi: " + error.message);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalHtml ?? submitBtn.innerHTML;
+    }
   }
 });
 
