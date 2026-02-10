@@ -88,13 +88,20 @@ export const uploadImageToServer = async (file) => {
       body: formData,
     });
 
-    if (!response.ok) throw new Error("Upload thất bại");
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return {
+        url: null,
+        errorMessage: result?.message || "Upload thất bại",
+      };
+    }
 
-    const result = await response.json();
-    return result.url; // Đây là link ảnh từ Cloudinary
+    return { url: result.url, errorMessage: null }; // Trả về URL ảnh nếu thành công
   } catch (error) {
     console.error("Lỗi upload:", error);
-    alert("Không thể tải ảnh lên server!");
-    return null;
+    return {
+      url: null,
+      errorMessage: "Không thể tải ảnh lên server!",
+    };
   }
 };

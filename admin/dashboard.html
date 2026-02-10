@@ -218,11 +218,15 @@
                 <label for="pImgFile" class="form-label">Ảnh sản phẩm</label>
                 <input
                   type="file"
-                  class="form-control bg-secondary text-white border-0 ps-3 pb-0 pt-2"
+                  class="form-control bg-secondary text-white border-0 ps-3 pt-2"
                   id="pImgFile"
                   accept="image/*"
                   required
                 />
+                <div
+                  id="pImgError"
+                  class="invalid-feedback d-block d-none"
+                ></div>
                 <input type="hidden" id="pImgUrl" />
                 <img
                   id="pImgPreview"

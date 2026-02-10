@@ -146,6 +146,50 @@ const productForm = document.getElementById("productForm");
 const imgFileInput = document.getElementById("pImgFile");
 const imgUrlInput = document.getElementById("pImgUrl");
 const imgPreview = document.getElementById("pImgPreview");
+const imgError = document.getElementById("pImgError");
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+const setImageError = (message) => {
+  if (!imgError || !imgFileInput) return;
+  if (message) {
+    imgError.textContent = message;
+    imgError.classList.remove("d-none");
+    imgFileInput.classList.add("is-invalid");
+  } else {
+    imgError.textContent = "";
+    imgError.classList.add("d-none");
+    imgFileInput.classList.remove("is-invalid");
+  }
+};
+
+const clearImageSelection = () => {
+  if (imgFileInput) imgFileInput.value = "";
+  if (imgPreview) {
+    imgPreview.src = "";
+    imgPreview.classList.add("d-none");
+  }
+  setImageError("");
+};
+
+const validateImageFile = (file) => {
+  if (!file) return { ok: false, message: "Vui lòng chọn ảnh sản phẩm!" };
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return {
+      ok: false,
+      message:
+        "Định dạng ảnh không hợp lệ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.",
+    };
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    return {
+      ok: false,
+      message: "Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.",
+    };
+  }
+  return { ok: true };
+};
 
 const renderPreviewFromUrl = (url) => {
   if (!imgPreview) return;
@@ -164,14 +208,28 @@ const renderPreviewFromFile = (file) => {
   imgPreview.src = objectUrl;
   imgPreview.classList.remove("d-none");
   imgPreview.onload = () => URL.revokeObjectURL(objectUrl);
+  imgPreview.onerror = () => {
+    URL.revokeObjectURL(objectUrl);
+    imgPreview.src = "";
+    imgPreview.classList.add("d-none");
+    setImageError("Khong the hien thi anh.");
+  };
 };
 
 if (imgFileInput) {
   imgFileInput.addEventListener("change", () => {
     const file = imgFileInput.files?.[0];
     if (file) {
+      const validation = validateImageFile(file);
+      if (!validation.ok) {
+        clearImageSelection();
+        setImageError(validation.message);
+        return;
+      }
+      setImageError("");
       renderPreviewFromFile(file);
     } else {
+      setImageError("");
       renderPreviewFromUrl(imgUrlInput?.value || "");
     }
   });
@@ -188,13 +246,28 @@ if (productForm) {
     const file = imgFileInput?.files?.[0];
 
     if (file) {
-      imageUrl = await dbService.uploadImageToServer(file);
-      if (!imageUrl) return;
+      const validation = validateImageFile(file);
+      if (!validation.ok) {
+        clearImageSelection();
+        setImageError(validation.message);
+        return;
+      }
+
+      const uploadResult = await dbService.uploadImageToServer(file);
+      if (!uploadResult?.url) {
+        setImageError(
+          uploadResult?.errorMessage ||
+            "Không thể tải ảnh lên server. Vui lòng thử lại.",
+        );
+        return;
+      }
+      imageUrl = uploadResult.url;
     } else if (!imageUrl) {
-      alert("Vui lòng chọn ảnh sản phẩm!");
+      setImageError("Vui lòng chọn ảnh sản phẩm!");
       return;
     }
 
+    setImageError("");
     const data = {
       name,
       price,
@@ -214,6 +287,7 @@ if (productForm) {
       ).hide();
       productForm.reset();
       renderPreviewFromUrl("");
+      setImageError("");
       if (imgFileInput) imgFileInput.required = true;
       if (imgUrlInput) imgUrlInput.value = "";
     } catch (error) {
@@ -232,6 +306,7 @@ window.openAddModal = () => {
   }
   if (imgUrlInput) imgUrlInput.value = "";
   renderPreviewFromUrl("");
+  setImageError("");
   new bootstrap.Modal(document.getElementById("productModal")).show();
 };
 
@@ -245,6 +320,7 @@ window.editProduct = (id, name, price, img) => {
     imgFileInput.required = false;
   }
   renderPreviewFromUrl(img || "");
+  setImageError("");
   document.getElementById("modalTitle").innerText = "Chỉnh sửa sản phẩm";
   new bootstrap.Modal(document.getElementById("productModal")).show();
 };
