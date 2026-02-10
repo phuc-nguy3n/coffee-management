@@ -8,14 +8,17 @@ export const enforceAdminAccess = (onAuthorized) => {
       window.location.href = "../login.html";
       return;
     }
-
-    const role = await dbService.getUserRole(user.uid);
-    if (role !== "admin") {
-      alert("Bạn không có quyền truy cập!");
+    try {
+      const role = await dbService.getUserRole(user.uid);
+      if (role !== "admin") {
+        alert("Bạn không có quyền truy cập!");
+        window.location.href = "../index.html";
+        return;
+      }
+      onAuthorized();
+    } catch (error) {
+      console.error("Access check failed:", error);
       window.location.href = "../index.html";
-      return;
     }
-
-    onAuthorized();
   });
 };
