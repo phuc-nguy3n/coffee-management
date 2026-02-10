@@ -257,43 +257,51 @@ if (imgFileInput) {
 if (productForm) {
   productForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const id = document.getElementById("productId").value;
-    const name = document.getElementById("pName").value;
-    const price = Number(document.getElementById("pPrice").value);
 
-    let imageUrl = imgUrlInput?.value || "";
-    const file = imgFileInput?.files?.[0];
-
-    if (file) {
-      const validation = validateImageFile(file);
-      if (!validation.ok) {
-        clearImageSelection();
-        setImageError(validation.message);
-        return;
-      }
-
-      const uploadResult = await dbService.uploadImageToServer(file);
-      if (!uploadResult?.url) {
-        setImageError(
-          uploadResult?.errorMessage ||
-            "Không thể tải ảnh lên server. Vui lòng thử lại.",
-        );
-        return;
-      }
-      imageUrl = uploadResult.url;
-    } else if (!imageUrl) {
-      setImageError("Vui lòng chọn ảnh sản phẩm!");
-      return;
+    const submitBtn = productForm.querySelector('[type="submit"]');
+    const originalHtml = submitBtn ? submitBtn.innerHTML : null;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
     }
 
-    setImageError("");
-    const data = {
-      name,
-      price,
-      imageUrl,
-    };
-
     try {
+      const id = document.getElementById("productId").value;
+      const name = document.getElementById("pName").value;
+      const price = Number(document.getElementById("pPrice").value);
+
+      let imageUrl = imgUrlInput?.value || "";
+      const file = imgFileInput?.files?.[0];
+
+      if (file) {
+        const validation = validateImageFile(file);
+        if (!validation.ok) {
+          clearImageSelection();
+          setImageError(validation.message);
+          return;
+        }
+
+        const uploadResult = await dbService.uploadImageToServer(file);
+        if (!uploadResult?.url) {
+          setImageError(
+            uploadResult?.errorMessage ||
+              "Không thể tải ảnh lên server. Vui lòng thử lại.",
+          );
+          return;
+        }
+        imageUrl = uploadResult.url;
+      } else if (!imageUrl) {
+        setImageError("Vui lòng chọn ảnh sản phẩm!");
+        return;
+      }
+
+      setImageError("");
+      const data = {
+        name,
+        price,
+        imageUrl,
+      };
+
       if (id) {
         await dbService.updateProduct(id, data);
         alert("Cập nhật thành công!");
@@ -311,6 +319,11 @@ if (productForm) {
       if (imgUrlInput) imgUrlInput.value = "";
     } catch (error) {
       console.error("Lỗi:", error);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHtml ?? submitBtn.innerHTML;
+      }
     }
   });
 }
@@ -540,8 +553,17 @@ window.viewOrderDetail = async (id) => {
   }
 };
 
-document.getElementById("orderForm").addEventListener("submit", async (e) => {
+const orderFormEl = document.getElementById("orderForm");
+orderFormEl.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  const submitBtn = document.getElementById("btnOrderSubmit") || orderFormEl.querySelector('[type="submit"]');
+  const originalHtml = submitBtn ? submitBtn.innerHTML : null;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
+  }
+
   const id = document.getElementById("currentOrderId").value;
   try {
     if (id) {
@@ -563,7 +585,10 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
           price: Number(chk.value),
         });
       });
-      if (items.length === 0) return alert("Vui lòng chọn món!");
+      if (items.length === 0) {
+        alert("Vui lòng chọn món!");
+        return;
+      }
 
       await dbService.createOrder({
         customerName: document.getElementById("orderCustomer").value,
@@ -575,6 +600,11 @@ document.getElementById("orderForm").addEventListener("submit", async (e) => {
     bootstrap.Modal.getInstance(document.getElementById("orderModal")).hide();
   } catch (error) {
     alert("Lỗi: " + error.message);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalHtml ?? submitBtn.innerHTML;
+    }
   }
 });
 
