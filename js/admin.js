@@ -143,14 +143,62 @@ const loadProducts = () => {
 
 // --- Xử lý Form Thêm/Sửa sản phẩm ---
 const productForm = document.getElementById("productForm");
+const imgFileInput = document.getElementById("pImgFile");
+const imgUrlInput = document.getElementById("pImgUrl");
+const imgPreview = document.getElementById("pImgPreview");
+
+const renderPreviewFromUrl = (url) => {
+  if (!imgPreview) return;
+  if (url) {
+    imgPreview.src = url;
+    imgPreview.classList.remove("d-none");
+  } else {
+    imgPreview.src = "";
+    imgPreview.classList.add("d-none");
+  }
+};
+
+const renderPreviewFromFile = (file) => {
+  if (!imgPreview) return;
+  const objectUrl = URL.createObjectURL(file);
+  imgPreview.src = objectUrl;
+  imgPreview.classList.remove("d-none");
+  imgPreview.onload = () => URL.revokeObjectURL(objectUrl);
+};
+
+if (imgFileInput) {
+  imgFileInput.addEventListener("change", () => {
+    const file = imgFileInput.files?.[0];
+    if (file) {
+      renderPreviewFromFile(file);
+    } else {
+      renderPreviewFromUrl(imgUrlInput?.value || "");
+    }
+  });
+}
+
 if (productForm) {
   productForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = document.getElementById("productId").value;
+    const name = document.getElementById("pName").value;
+    const price = Number(document.getElementById("pPrice").value);
+
+    let imageUrl = imgUrlInput?.value || "";
+    const file = imgFileInput?.files?.[0];
+
+    if (file) {
+      imageUrl = await dbService.uploadImageToServer(file);
+      if (!imageUrl) return;
+    } else if (!imageUrl) {
+      alert("Vui lòng chọn ảnh sản phẩm!");
+      return;
+    }
+
     const data = {
-      name: document.getElementById("pName").value,
-      price: Number(document.getElementById("pPrice").value),
-      imageUrl: document.getElementById("pImg").value,
+      name,
+      price,
+      imageUrl,
     };
 
     try {
@@ -165,6 +213,9 @@ if (productForm) {
         document.getElementById("productModal"),
       ).hide();
       productForm.reset();
+      renderPreviewFromUrl("");
+      if (imgFileInput) imgFileInput.required = true;
+      if (imgUrlInput) imgUrlInput.value = "";
     } catch (error) {
       console.error("Lỗi:", error);
     }
@@ -175,6 +226,12 @@ window.openAddModal = () => {
   productForm.reset();
   document.getElementById("productId").value = "";
   document.getElementById("modalTitle").innerText = "Thêm Sản Phẩm Mới";
+  if (imgFileInput) {
+    imgFileInput.value = "";
+    imgFileInput.required = true;
+  }
+  if (imgUrlInput) imgUrlInput.value = "";
+  renderPreviewFromUrl("");
   new bootstrap.Modal(document.getElementById("productModal")).show();
 };
 
@@ -182,7 +239,12 @@ window.editProduct = (id, name, price, img) => {
   document.getElementById("productId").value = id;
   document.getElementById("pName").value = name;
   document.getElementById("pPrice").value = price;
-  document.getElementById("pImg").value = img;
+  if (imgUrlInput) imgUrlInput.value = img || "";
+  if (imgFileInput) {
+    imgFileInput.value = "";
+    imgFileInput.required = false;
+  }
+  renderPreviewFromUrl(img || "");
   document.getElementById("modalTitle").innerText = "Chỉnh sửa sản phẩm";
   new bootstrap.Modal(document.getElementById("productModal")).show();
 };
