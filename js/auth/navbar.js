@@ -4,8 +4,9 @@ import {
   doc,
   getDoc,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { NAVIGATION_PATHS } from "../config/constants.js";
 
-const ADMIN_DASHBOARD_PATH = "../admin/dashboard.html";
+const ADMIN_DASHBOARD_PATH = NAVIGATION_PATHS.adminDashboard;
 
 const renderGuestMenu = (userDropdown, dropdownMenu) => {
   userDropdown.innerHTML = `<i class="fa-regular fa-user"></i>`;

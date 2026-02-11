@@ -2,17 +2,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { FIREBASE_CONFIG } from "./config/constants.js";
 
 // Cấu hình Firebase của riêng bạn (Lấy từ Firebase Console)
 // Lưu ý: Hãy thay thế các giá trị bên dưới bằng mã bạn copy được từ Firebase
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-};
+const firebaseConfig = FIREBASE_CONFIG;
 
 // Khởi tạo ứng ụng
 const app = initializeApp(firebaseConfig);

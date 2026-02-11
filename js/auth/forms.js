@@ -10,6 +10,11 @@ import {
   setDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {
+  DEFAULT_VALUES,
+  MESSAGES,
+  NAVIGATION_PATHS,
+} from "../config/constants.js";
 
 export const setupRegisterForm = (setRegisteringState) => {
   const registerForm = document.getElementById("registerForm");
@@ -43,14 +48,14 @@ export const setupRegisterForm = (setRegisteringState) => {
       await setDoc(doc(db, "users", user.uid), {
         displayName: name,
         email,
-        role: "customer",
+        role: DEFAULT_VALUES.userRole,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
 
       await signOut(auth);
-      alert("Đăng ký thành công!");
-      window.location.href = "login.html";
+      alert(MESSAGES.registerSuccess);
+      window.location.href = NAVIGATION_PATHS.login;
     } catch (error) {
       alert("Lỗi: " + error.message);
     } finally {

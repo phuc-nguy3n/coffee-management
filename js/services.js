@@ -12,11 +12,16 @@ import {
   query,
   orderBy,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {
+  COLLECTIONS,
+  DEFAULT_VALUES,
+  API_ENDPOINTS,
+} from "./config/constants.js";
 
 // ================= CẤU HÌNH COLLECTIONS =================
-const productCol = collection(db, "products");
-const orderCol = collection(db, "orders");
-const userCol = collection(db, "users");
+const productCol = collection(db, COLLECTIONS.products);
+const orderCol = collection(db, COLLECTIONS.orders);
+const userCol = collection(db, COLLECTIONS.users);
 
 // ================= DỊCH VỤ SẢN PHẨM =================
 
@@ -54,7 +59,7 @@ export const getOrderById = (id) => {
 export const createOrder = (orderData) => {
   return addDoc(orderCol, {
     ...orderData,
-    status: "Đang chờ",
+    status: DEFAULT_VALUES.orderStatus,
     createdAt: serverTimestamp(),
   });
 };
@@ -83,7 +88,7 @@ export const uploadImageToServer = async (file) => {
   formData.append("image", file);
 
   try {
-    const response = await fetch("http://localhost:5000/api/upload", {
+    const response = await fetch(API_ENDPOINTS.uploadImage, {
       method: "POST",
       body: formData,
     });
@@ -92,14 +97,14 @@ export const uploadImageToServer = async (file) => {
     if (!response.ok) {
       return {
         url: null,
-        errorMessage: result?.message || "Upload thất bại",
+        errorMessage: result?.message || MESSAGES.uploadFailed,
       };
     }
 
     if (!result?.url) {
       return {
         url: null,
-        errorMessage: "Server không trả về URL ảnh hợp lệ.",
+        errorMessage: MESSAGES.invalidImageUrl,
       };
     }
 
@@ -108,7 +113,7 @@ export const uploadImageToServer = async (file) => {
     console.error("Lỗi upload:", error);
     return {
       url: null,
-      errorMessage: "Không thể tải ảnh lên server!",
+      errorMessage: MESSAGES.uploadError,
     };
   }
 };
