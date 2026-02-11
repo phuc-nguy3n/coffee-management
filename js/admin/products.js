@@ -60,6 +60,7 @@ const renderPreviewFromUrl = (url) => {
     currentObjectUrl = null;
   }
 
+  imgPreview.onerror = null;
   imgPreview.src = url || "";
   imgPreview.classList.toggle("d-none", !url);
 };
@@ -69,43 +70,47 @@ const renderPreviewFromFile = (file) => {
 
   if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
 
+  imgPreview.onerror = null;
   currentObjectUrl = URL.createObjectURL(file);
   imgPreview.src = currentObjectUrl;
   imgPreview.classList.remove("d-none");
   imgPreview.onerror = () => {
+    imgPreview.onerror = null;
     if (currentObjectUrl) {
       URL.revokeObjectURL(currentObjectUrl);
       currentObjectUrl = null;
     }
-    imgPreview.src = "";
+    imgPreview.removeAttribute("src");
     imgPreview.classList.add("d-none");
-    setImageError(
-      "Không thể hiển thị ảnh đã chọn. Vui lòng thử lại với một ảnh khác.",
-    );
+    setImageError("Không thể hiển thị ảnh đã chọn. Vui lòng thử lại.");
   };
+};
+
+const handleImageChange = () => {
+  const file = imgFileInput?.files?.[0];
+  if (!file) {
+    setImageError("");
+    renderPreviewFromUrl(imgUrlInput?.value || "");
+    return;
+  }
+
+  const validation = validateImageFile(file);
+  if (!validation.ok) {
+    clearImageSelection();
+    setImageError(validation.message);
+    return;
+  }
+
+  setImageError("");
+  renderPreviewFromFile(file);
 };
 
 const bindImageInput = () => {
   if (!imgFileInput) return;
+  if (imgFileInput.dataset.bound === "true") return;
+  imgFileInput.dataset.bound = "true";
 
-  imgFileInput.addEventListener("change", () => {
-    const file = imgFileInput.files?.[0];
-    if (!file) {
-      setImageError("");
-      renderPreviewFromUrl(imgUrlInput?.value || "");
-      return;
-    }
-
-    const validation = validateImageFile(file);
-    if (!validation.ok) {
-      clearImageSelection();
-      setImageError(validation.message);
-      return;
-    }
-
-    setImageError("");
-    renderPreviewFromFile(file);
-  });
+  imgFileInput.addEventListener("change", handleImageChange);
 };
 
 const bindProductForm = () => {
@@ -171,6 +176,20 @@ const bindProductForm = () => {
     } finally {
       stopButtonLoading(submitBtn, originalHtml);
     }
+  });
+};
+
+const bindProductModal = () => {
+  const modalEl = document.getElementById("productModal");
+  if (!modalEl) return;
+  if (modalEl.dataset.bound === "true") return;
+  modalEl.dataset.bound = "true";
+
+  modalEl.addEventListener("hidden.bs.modal", () => {
+    clearImageSelection();
+    if (imgUrlInput) imgUrlInput.value = "";
+    if (imgFileInput) imgFileInput.required = true;
+    setImageError("");
   });
 };
 
@@ -265,5 +284,6 @@ export const initProductsModule = () => {
   loadProducts();
   bindImageInput();
   bindProductForm();
+  bindProductModal();
   registerWindowActions();
 };
