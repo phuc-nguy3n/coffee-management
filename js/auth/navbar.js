@@ -1,4 +1,4 @@
-import { auth, db } from "../firebase-config.js";
+import { auth, db } from "../config/firebase-config.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
   doc,

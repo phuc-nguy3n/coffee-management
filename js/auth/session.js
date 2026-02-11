@@ -1,4 +1,4 @@
-import { auth } from "../firebase-config.js";
+import { auth } from "../config/firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { updateNavbarUI } from "./navbar.js";
 import { STORAGE_KEYS, NAVIGATION_PATHS } from "../config/constants.js";
