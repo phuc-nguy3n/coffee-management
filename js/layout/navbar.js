@@ -1,4 +1,4 @@
-import { APP_CONFIG, NAVIGATION_PATHS } from "./config/constants.js";
+import { APP_CONFIG, NAVIGATION_PATHS } from "../config/constants.js";
 
 export function loadNavbar() {
   const navbarHTML = `
