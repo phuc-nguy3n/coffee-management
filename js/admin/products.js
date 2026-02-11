@@ -1,4 +1,7 @@
 import * as dbService from "../services/index.js";
+import { formatFirestoreDateTime } from "../utils/date.js";
+import { formatPrice } from "../utils/number.js";
+import { startButtonLoading, stopButtonLoading } from "../utils/ui.js";
 
 const productForm = document.getElementById("productForm");
 const imgFileInput = document.getElementById("pImgFile");
@@ -112,12 +115,7 @@ const bindProductForm = () => {
     e.preventDefault();
 
     const submitBtn = productForm.querySelector('[type="submit"]');
-    const originalHtml = submitBtn?.innerHTML;
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML =
-        '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
-    }
+    const originalHtml = startButtonLoading(submitBtn);
 
     try {
       const id = document.getElementById("productId").value;
@@ -171,10 +169,7 @@ const bindProductForm = () => {
     } catch (error) {
       console.error("Lỗi:", error);
     } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalHtml ?? submitBtn.innerHTML;
-      }
+      stopButtonLoading(submitBtn, originalHtml);
     }
   });
 };
@@ -196,8 +191,8 @@ const loadProducts = () => {
       tr.innerHTML = `
         <td><img width="40" height="40" class="rounded" style="object-fit:cover" alt="${p?.name || "product"}" src="${p?.imageUrl || ""}" /></td>
         <td>${p?.name || ""}</td>
-        <td>${Number(p?.price ?? 0).toLocaleString()}đ</td>
-        <td>${p?.createdAt && typeof p.createdAt.toDate === "function" ? p.createdAt.toDate().toLocaleString("vi-VN") : "Đang xử lý..."}</td>
+        <td>${formatPrice(p?.price)}</td>
+        <td>${formatFirestoreDateTime(p?.createdAt)}</td>
         <td>
           <button class="btn btn-sm btn-warning me-2 js-edit-product"><i class="fas fa-edit"></i></button>
           <button class="btn btn-sm btn-danger js-delete-product"><i class="fas fa-trash"></i></button>

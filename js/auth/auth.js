@@ -1,4 +1,4 @@
-import { saveCurrentPage } from "../utils.js";
+import { saveCurrentPage } from "../utils/storage.js";
 import { setupLoginForm, setupRegisterForm } from "./forms.js";
 import { initAuthStateListener } from "./session.js";
 

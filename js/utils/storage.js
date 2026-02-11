@@ -1,4 +1,4 @@
-import { NAVIGATION_PATHS, STORAGE_KEYS } from "./config/constants.js";
+import { NAVIGATION_PATHS, STORAGE_KEYS } from "../config/constants.js";
 
 // Hàm lưu trang hiện tại vào localStorage
 export function saveCurrentPage() {

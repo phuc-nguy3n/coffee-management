@@ -1,4 +1,7 @@
 import * as dbService from "../services/index.js";
+import { formatFirestoreDateTime } from "../utils/date.js";
+import { formatPrice } from "../utils/number.js";
+import { startButtonLoading, stopButtonLoading } from "../utils/ui.js";
 
 const calculateOrderTotal = () => {
   let total = 0;
@@ -27,7 +30,7 @@ const renderProductCheckboxes = () => {
             <label class="form-check-label text-white" for="chk-${docSnap.id}">${p.name}</label>
           </div>
           <div class="d-flex align-items-center">
-            <span class="text-warning me-3">${p.price.toLocaleString()}đ</span>
+            <span class="text-warning me-3">${formatPrice(p.price)}</span>
             <div class="d-flex align-items-center bg-dark rounded border border-secondary">
                 <button type="button" class="btn btn-sm text-white px-2" onclick="updateQty('${docSnap.id}', -1)">-</button>
                 <input
@@ -69,9 +72,9 @@ const loadOrders = () => {
       tr.innerHTML = `
         <td>#${docSnap.id.slice(0, 5)}</td>
         <td>${o?.customerName || "Khách tại quầy"}</td>
-        <td>${Number(o?.total ?? 0).toLocaleString()}đ</td>
+        <td>${formatPrice(o?.total)}</td>
         <td><span class="badge ${o?.status === "Hoàn thành" ? "bg-success" : "bg-warning"}">${o?.status || ""}</span></td>
-        <td>${o?.createdAt && typeof o.createdAt.toDate === "function" ? o.createdAt.toDate().toLocaleString("vi-VN") : "Đang xử lý..."}</td>
+        <td>${formatFirestoreDateTime(o?.createdAt)}</td>
         <td><button class="btn btn-sm btn-primary">Chi tiết</button></td>
       `;
 
@@ -93,12 +96,7 @@ const bindOrderForm = () => {
     const submitBtn =
       document.getElementById("btnOrderSubmit") ||
       orderFormEl.querySelector('[type="submit"]');
-    const originalHtml = submitBtn?.innerHTML;
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML =
-        '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
-    }
+    const originalHtml = startButtonLoading(submitBtn);
 
     const id = document.getElementById("currentOrderId").value;
 
@@ -140,10 +138,7 @@ const bindOrderForm = () => {
     } catch (error) {
       alert("Lỗi: " + error.message);
     } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalHtml ?? submitBtn.innerHTML;
-      }
+      stopButtonLoading(submitBtn, originalHtml);
     }
   });
 };

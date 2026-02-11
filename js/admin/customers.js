@@ -1,4 +1,5 @@
 import * as dbService from "../services/index.js";
+import { formatFirestoreDate } from "../utils/date.js";
 
 export const initCustomersModule = () => {
   dbService.subscribeCustomers((snapshot) => {
@@ -23,10 +24,7 @@ export const initCustomersModule = () => {
       tdRole.appendChild(roleBadge);
 
       const tdCreated = document.createElement("td");
-      tdCreated.textContent =
-        u?.createdAt && typeof u.createdAt.toDate === "function"
-          ? u.createdAt.toDate().toLocaleDateString("vi-VN")
-          : "N/A";
+      tdCreated.textContent = formatFirestoreDate(u?.createdAt);
 
       tr.appendChild(tdName);
       tr.appendChild(tdEmail);
