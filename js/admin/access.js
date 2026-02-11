@@ -1,6 +1,6 @@
 import { auth } from "../firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import * as dbService from "../services.js";
+import * as dbService from "../services/index.js";
 
 export const enforceAdminAccess = (onAuthorized) => {
   onAuthStateChanged(auth, async (user) => {

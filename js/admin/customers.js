@@ -1,4 +1,4 @@
-import * as dbService from "../services.js";
+import * as dbService from "../services/index.js";
 
 export const initCustomersModule = () => {
   dbService.subscribeCustomers((snapshot) => {
@@ -23,7 +23,10 @@ export const initCustomersModule = () => {
       tdRole.appendChild(roleBadge);
 
       const tdCreated = document.createElement("td");
-      tdCreated.textContent = u?.createdAt && typeof u.createdAt.toDate === "function" ? u.createdAt.toDate().toLocaleDateString("vi-VN") : "N/A";
+      tdCreated.textContent =
+        u?.createdAt && typeof u.createdAt.toDate === "function"
+          ? u.createdAt.toDate().toLocaleDateString("vi-VN")
+          : "N/A";
 
       tr.appendChild(tdName);
       tr.appendChild(tdEmail);

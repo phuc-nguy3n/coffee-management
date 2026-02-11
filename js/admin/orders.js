@@ -1,4 +1,4 @@
-import * as dbService from "../services.js";
+import * as dbService from "../services/index.js";
 
 const calculateOrderTotal = () => {
   let total = 0;
@@ -75,7 +75,9 @@ const loadOrders = () => {
         <td><button class="btn btn-sm btn-primary">Chi tiết</button></td>
       `;
 
-      tr.querySelector("button").addEventListener("click", () => window.viewOrderDetail(docSnap.id));
+      tr.querySelector("button").addEventListener("click", () =>
+        window.viewOrderDetail(docSnap.id),
+      );
       list.appendChild(tr);
     });
   });
@@ -88,24 +90,31 @@ const bindOrderForm = () => {
   orderFormEl.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const submitBtn = document.getElementById("btnOrderSubmit") || orderFormEl.querySelector('[type="submit"]');
+    const submitBtn =
+      document.getElementById("btnOrderSubmit") ||
+      orderFormEl.querySelector('[type="submit"]');
     const originalHtml = submitBtn?.innerHTML;
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
+      submitBtn.innerHTML =
+        '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
     }
 
     const id = document.getElementById("currentOrderId").value;
 
     try {
       if (id) {
-        await dbService.updateOrderStatus(id, document.getElementById("orderStatus").value);
+        await dbService.updateOrderStatus(
+          id,
+          document.getElementById("orderStatus").value,
+        );
         alert("Cập nhật trạng thái thành công!");
       } else {
         const items = [];
         document.querySelectorAll(".product-select:checked").forEach((chk) => {
           const qty = parseInt(
-            document.getElementById(`qty-${chk.id.replace("chk-", "")}`).value || "1",
+            document.getElementById(`qty-${chk.id.replace("chk-", "")}`)
+              .value || "1",
           );
           items.push({
             name: chk.getAttribute("data-name"),
@@ -149,7 +158,9 @@ const registerWindowActions = () => {
     statusField.value = "Đang chờ";
     statusField.disabled = true;
 
-    document.getElementById("product-selection-area").classList.remove("d-none");
+    document
+      .getElementById("product-selection-area")
+      .classList.remove("d-none");
     document.getElementById("btnOrderSubmit").innerText = "Xác nhận tạo đơn";
 
     renderProductCheckboxes();
@@ -176,7 +187,8 @@ const registerWindowActions = () => {
     if (digitsOnly !== value) qtyElement.value = digitsOnly;
 
     const parsed = parseInt(digitsOnly);
-    if (enforceMin) qtyElement.value = !Number.isFinite(parsed) || parsed < 1 ? 1 : parsed;
+    if (enforceMin)
+      qtyElement.value = !Number.isFinite(parsed) || parsed < 1 ? 1 : parsed;
     calculateOrderTotal();
   };
 
@@ -197,7 +209,9 @@ const registerWindowActions = () => {
     document.getElementById("btnOrderSubmit").innerText = "Cập nhật trạng thái";
 
     const container = document.getElementById("product-checkbox-list");
-    document.getElementById("product-selection-area").classList.remove("d-none");
+    document
+      .getElementById("product-selection-area")
+      .classList.remove("d-none");
 
     container.innerHTML = `<div class="d-flex justify-content-between text-warning mb-2 border-bottom border-secondary pb-1"><span>Món đã đặt</span><span>Số lượng</span></div>`;
 

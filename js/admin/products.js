@@ -1,4 +1,4 @@
-import * as dbService from "../services.js";
+import * as dbService from "../services/index.js";
 
 const productForm = document.getElementById("productForm");
 const imgFileInput = document.getElementById("pImgFile");
