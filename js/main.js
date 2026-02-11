@@ -1,5 +1,5 @@
 // File js quản lý chung, như load navbar, lưu trang hiện tại, v.v.
-import { loadNavbar } from "./components.js";
+import { loadNavbar } from "./layout/navbar.js";
 import { saveCurrentPage } from "./utils/storage.js";
 
 // Hàm lưu trang hiện tại vào localStorage
