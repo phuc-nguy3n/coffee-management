@@ -39,7 +39,7 @@
 }
 
 .product-card img {
-    height: 200px;
+    height: 300px;
     object-fit: cover;
     border-radius: 15px 15px 0 0;
 }
