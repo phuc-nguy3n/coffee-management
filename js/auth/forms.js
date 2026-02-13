@@ -77,7 +77,7 @@ export const setupLoginForm = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       alert(MESSAGES.loginSuccess);
-      window.location.replace("./index.html");
+      window.location.replace(NAVIGATION_PATHS.home);
     } catch (error) {
       alert(MESSAGES.errorPrefix + error.message);
     }
