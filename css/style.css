@@ -82,6 +82,25 @@ body {
     position: relative;
 }
 
+.cart-item .nav-link {
+    position: relative;
+}
+
+.cart-dot {
+    position: absolute;
+    top: 7px;
+    left: 24px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e74c3c;
+    display: none;
+}
+
+.cart-dot.show {
+    display: block;
+}
+
 .cart-preview {
     position: absolute;
     top: calc(100% + 8px);

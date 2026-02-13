@@ -20,6 +20,7 @@ export function loadNavbar() {
               <a class="nav-link d-flex align-items-center gap-2" id="cart-toggle" href="${NAVIGATION_PATHS.cart}" role="button" aria-expanded="false" aria-haspopup="true">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span>${UI_TEXTS.navbarCart}</span>
+                <span class="cart-dot" id="cart-dot" aria-hidden="true"></span>
               </a>
               <div class="cart-preview" id="cart-preview" role="dialog" aria-label="${UI_TEXTS.navbarCart}">
                 <p class="mb-2 fw-semibold">${UI_TEXTS.navbarCart}</p>
@@ -45,18 +46,24 @@ export function loadNavbar() {
   const cartToggle = document.getElementById("cart-toggle");
   const cartPreview = document.getElementById("cart-preview");
   const cartPreviewBody = document.getElementById("cart-preview-body");
+  const cartDot = document.getElementById("cart-dot");
 
-  if (cartToggle && cartPreview && cartPreviewBody) {
+  if (cartToggle && cartPreview && cartPreviewBody && cartDot) {
+    const updateCartDot = () => {
+      const cart = window.cart || [];
+      cartDot.classList.toggle("show", cart.length > 0);
+    };
+
     const renderCartPreview = () => {
       const cart = window.cart || [];
       if (!cart.length) {
-        cartPreviewBody.innerHTML = `<p class="mb-0 text-white-50">Giỏ hàng trống</p>`;
+        cartPreviewBody.innerHTML = `<p class="mb-0 text-white-50">Gio hang trong</p>`;
         return;
       }
 
       cartPreviewBody.innerHTML = cart
         .map((item) => {
-          const name = item?.name || "Sản phẩm";
+          const name = item?.name || "San pham";
           const imageUrl = item?.imageUrl || "";
           const price = item?.price ?? 0;
           const qty = item?.quantity ?? 1;
@@ -74,6 +81,7 @@ export function loadNavbar() {
     };
 
     renderCartPreview();
+    updateCartDot();
 
     const closeCart = () => {
       cartPreview.classList.remove("show");
@@ -84,6 +92,7 @@ export function loadNavbar() {
       event.preventDefault();
       event.stopPropagation();
       renderCartPreview();
+      updateCartDot();
       const isOpen = cartPreview.classList.toggle("show");
       cartToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
     });
@@ -101,6 +110,9 @@ export function loadNavbar() {
       }
     });
 
-    document.addEventListener("cart:updated", renderCartPreview);
+    document.addEventListener("cart:updated", () => {
+      renderCartPreview();
+      updateCartDot();
+    });
   }
 }
