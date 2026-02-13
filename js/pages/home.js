@@ -1,6 +1,6 @@
-﻿import { subscribeProducts } from "./services/productService.js";
-import { formatPrice } from "./utils/number.js";
-import { UI_TEXTS } from "./config/constants.js";
+﻿import { subscribeProducts } from "../services/productService.js";
+import { formatPrice } from "../utils/number.js";
+import { UI_TEXTS } from "../config/constants.js";
 
 const container = document.getElementById("home-products");
 
