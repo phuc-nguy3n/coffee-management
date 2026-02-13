@@ -15,11 +15,15 @@ export function loadNavbar() {
           <ul class="navbar-nav ms-auto" id="nav-menu-items">
             <li class="nav-item"><a class="nav-link" href="${NAVIGATION_PATHS.home}">${UI_TEXTS.navbarHome}</a></li>
             <li class="nav-item"><a class="nav-link" href="#">${UI_TEXTS.navbarMenu}</a></li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-2" href="${NAVIGATION_PATHS.cart}">
+            <li class="nav-item cart-item">
+              <a class="nav-link d-flex align-items-center gap-2" id="cart-toggle" href="${NAVIGATION_PATHS.cart}" role="button" aria-expanded="false" aria-haspopup="true">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span>${UI_TEXTS.navbarCart}</span>
               </a>
+              <div class="cart-preview" id="cart-preview" role="dialog" aria-label="${UI_TEXTS.navbarCart}">
+                <p class="mb-2 fw-semibold">${UI_TEXTS.navbarCart}</p>
+                <div class="cart-preview-body" id="cart-preview-body"></div>
+              </div>
             </li>
             <li class="nav-item" id="admin-feature"></li>
             <li class="nav-item dropdown">
@@ -34,6 +38,68 @@ export function loadNavbar() {
       </div>
     </nav>`;
 
-  // Chèn vào vị trí đầu tiên của thẻ body
+  // Insert at the beginning of the body
   document.body.insertAdjacentHTML("afterbegin", navbarHTML);
+
+  const cartToggle = document.getElementById("cart-toggle");
+  const cartPreview = document.getElementById("cart-preview");
+  const cartPreviewBody = document.getElementById("cart-preview-body");
+
+  if (cartToggle && cartPreview && cartPreviewBody) {
+    const renderCartPreview = () => {
+      const cart = window.cart || [];
+      if (!cart.length) {
+        cartPreviewBody.innerHTML = `<p class="mb-0 text-white-50">Giỏ hàng trống</p>`;
+        return;
+      }
+
+      cartPreviewBody.innerHTML = cart
+        .map((item) => {
+          const name = item?.name || "San pham";
+          const imageUrl = item?.imageUrl || "";
+          const price = item?.price ?? 0;
+          const qty = item?.quantity ?? 1;
+          return `
+            <div class="cart-preview-item">
+              <img class="cart-preview-img" src="${imageUrl}" alt="${name}" />
+              <div class="cart-preview-info">
+                <p class="mb-0 cart-preview-name">${name}</p>
+                <p class="mb-0 text-white-50">x${qty} • ${price}</p>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    };
+
+    renderCartPreview();
+
+    const closeCart = () => {
+      cartPreview.classList.remove("show");
+      cartToggle.setAttribute("aria-expanded", "false");
+    };
+
+    cartToggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      renderCartPreview();
+      const isOpen = cartPreview.classList.toggle("show");
+      cartToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!cartPreview.contains(target) && !cartToggle.contains(target)) {
+        closeCart();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeCart();
+      }
+    });
+
+    document.addEventListener("cart:updated", renderCartPreview);
+  }
 }

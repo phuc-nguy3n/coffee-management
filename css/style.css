@@ -78,6 +78,72 @@ body {
     padding: 15px 0;
 }
 
+.cart-item {
+    position: relative;
+}
+
+.cart-preview {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 240px;
+    background: #1b1f23;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+    display: none;
+    z-index: 2000;
+}
+
+.cart-preview::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    right: 18px;
+    width: 14px;
+    height: 14px;
+    background: #1b1f23;
+    transform: rotate(45deg);
+}
+
+.cart-preview.show {
+    display: block;
+}
+
+.cart-preview-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 240px;
+    overflow: auto;
+}
+
+.cart-preview-item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cart-preview-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.cart-preview-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #2c3136;
+}
+
+.cart-preview-name {
+    font-size: 0.9rem;
+}
+
 .hero-section {
     background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
         url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2070&auto=format&fit=crop');

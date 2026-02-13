@@ -3,6 +3,23 @@ import { formatPrice } from "../utils/number.js";
 import { UI_TEXTS } from "../config/constants.js";
 
 const container = document.getElementById("home-products");
+const cart = window.cart || [];
+window.cart = cart;
+
+const addToCart = (product) => {
+  const name = product?.name || "Sản phẩm";
+  const price = product?.price ?? 0;
+  const imageUrl = product?.imageUrl || "";
+
+  cart.push({
+    name,
+    imageUrl,
+    price,
+    quantity: 1,
+  });
+
+  document.dispatchEvent(new CustomEvent("cart:updated"));
+};
 
 const renderMessage = (message) => {
   if (!container) return;
@@ -55,6 +72,7 @@ const buildCard = (product) => {
   button.className = "btn btn-order d-block ms-auto";
   button.type = "button";
   button.textContent = "Thêm vào giỏ";
+  button.addEventListener("click", () => addToCart(product));
 
   body.appendChild(header);
   body.appendChild(button);
