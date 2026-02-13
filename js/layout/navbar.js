@@ -93,6 +93,7 @@ export function loadNavbar() {
                   <button type="button" class="cart-qty-btn" data-change="1" aria-label="Increase quantity">+</button>
                 </div>
               </div>
+              <button type="button" class="cart-remove-btn custom-pb-3px" data-remove="${index}" aria-label="Remove item">×</button>
             </div>
           `;
         })
@@ -130,6 +131,12 @@ export function loadNavbar() {
     });
 
     cartPreviewBody.addEventListener("click", (event) => {
+      const removeBtn = event.target.closest(".cart-remove-btn");
+      if (removeBtn) {
+        const index = Number(removeBtn.dataset.remove);
+        if (!Number.isNaN(index)) updateCartItemQuantity(index, -9999);
+        return;
+      }
       const button = event.target.closest(".cart-qty-btn");
       if (!button) return;
       const wrapper = button.closest(".cart-preview-qty");
@@ -146,5 +153,3 @@ export function loadNavbar() {
     });
   }
 }
-
-

@@ -16,6 +16,12 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* --- CUSTOM CSS ---  */
+
+.custom-pb-3px {
+    padding-bottom: 3px !important;
+}
+
 /* --- AUTHENTICATION (Login & Register) --- */
 .background-auth {
     background: url("https://images.unsplash.com/photo-1521917441209-e886f0404a7b?q=80&w=1460&auto=format&fit=crop") no-repeat center center fixed;
@@ -164,6 +170,7 @@ body {
     align-items: center;
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
 }
 
 .cart-preview-item:last-child {
@@ -215,6 +222,29 @@ body {
     min-width: 18px;
     text-align: center;
     font-size: 0.85rem;
+}
+
+.cart-remove-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.cart-remove-btn:hover {
+    background: rgba(231, 76, 60, 0.8);
 }
 
 .hero-section {
