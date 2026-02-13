@@ -54,7 +54,7 @@ const buildCard = (product) => {
   const button = document.createElement("button");
   button.className = "btn btn-order";
   button.type = "button";
-  button.textContent = "Đặt hàng";
+  button.textContent = "Thêm vào giỏ";
 
   body.appendChild(header);
   body.appendChild(button);
