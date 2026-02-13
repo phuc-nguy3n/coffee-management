@@ -115,17 +115,38 @@ const bindOrderForm = () => {
         alert(MESSAGES.orderStatusUpdated);
       } else {
         const items = [];
+        let firstMissingQty = null;
+        let firstMissingName = "";
         document.querySelectorAll(".product-select:checked").forEach((chk) => {
-          const qty = parseInt(
-            document.getElementById(`qty-${chk.id.replace("chk-", "")}`)
-              .value || "1",
-          );
+          const id = chk.id.replace("chk-", "");
+          const qtyInput = document.getElementById(`qty-${id}`);
+          const rawQty = qtyInput.value.trim();
+
+          if (rawQty === "") {
+            if (!firstMissingQty) {
+              firstMissingQty = qtyInput;
+              firstMissingName = chk.getAttribute("data-name") || "";
+            }
+            return;
+          }
+
+          const qty = parseInt(rawQty);
           items.push({
             name: chk.getAttribute("data-name"),
             quantity: qty,
             price: Number(chk.value),
           });
         });
+
+        if (firstMissingQty) {
+          alert(
+            `${MESSAGES.orderQuantityRequired}${
+              firstMissingName ? `: ${firstMissingName}` : ""
+            }`,
+          );
+          firstMissingQty.focus();
+          return;
+        }
 
         if (items.length === 0) {
           alert(MESSAGES.orderSelectItem);
@@ -181,7 +202,6 @@ const registerWindowActions = () => {
   window.setQty = (id, value, enforceMin) => {
     const qtyElement = document.getElementById(`qty-${id}`);
     if (value === "") {
-      if (enforceMin) qtyElement.value = 1;
       calculateOrderTotal();
       return;
     }
@@ -190,8 +210,9 @@ const registerWindowActions = () => {
     if (digitsOnly !== value) qtyElement.value = digitsOnly;
 
     const parsed = parseInt(digitsOnly);
-    if (enforceMin)
-      qtyElement.value = !Number.isFinite(parsed) || parsed < 1 ? 1 : parsed;
+    if (enforceMin && Number.isFinite(parsed) && parsed < 1) {
+      qtyElement.value = 1;
+    }
     calculateOrderTotal();
   };
 

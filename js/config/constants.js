@@ -77,6 +77,7 @@ export const MESSAGES = {
   loginSuccess: "Đăng nhập thành công!",
   orderStatusUpdated: "Cập nhật trạng thái thành công!",
   orderSelectItem: "Vui lòng chọn món!",
+  orderQuantityRequired: "Vui lòng nhập số lượng cho món",
   orderCreated: "Tạo đơn hàng thành công!",
   productUpdated: "Cập nhật thành công!",
   productAdded: "Thêm món mới thành công!",
