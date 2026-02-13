@@ -57,13 +57,13 @@ export function loadNavbar() {
     const renderCartPreview = () => {
       const cart = window.cart || [];
       if (!cart.length) {
-        cartPreviewBody.innerHTML = `<p class="mb-0 text-white-50">Gio hang trong</p>`;
+        cartPreviewBody.innerHTML = `<p class="mb-0 text-white-50">Giỏ hàng trống</p>`;
         return;
       }
 
       cartPreviewBody.innerHTML = cart
         .map((item) => {
-          const name = item?.name || "San pham";
+          const name = item?.name || "Sản phẩm";
           const imageUrl = item?.imageUrl || "";
           const price = item?.price ?? 0;
           const qty = item?.quantity ?? 1;
