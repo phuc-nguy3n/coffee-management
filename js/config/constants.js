@@ -8,13 +8,12 @@ export const APP_CONFIG = {
 
 // Firebase Configuration
 export const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDdjiuYsxXA-TPYEajWcKECoaG3g569B-c",
-  authDomain: "coffee-management-ff2a2.firebaseapp.com",
-  projectId: "coffee-management-ff2a2",
-  storageBucket: "coffee-management-ff2a2.firebasestorage.app",
-  messagingSenderId: "255370865286",
-  appId: "1:255370865286:web:93538bb6f6f50eae5b3f07",
-  measurementId: "G-4TTPLYX0EL",
+  apiKey: "YOUR_API_KEY_HERE",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
 };
 
 // Navigation Paths
