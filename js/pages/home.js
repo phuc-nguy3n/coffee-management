@@ -52,7 +52,7 @@ const buildCard = (product) => {
   header.appendChild(priceEl);
 
   const button = document.createElement("button");
-  button.className = "btn btn-order";
+  button.className = "btn btn-order d-block ms-auto";
   button.type = "button";
   button.textContent = "Thêm vào giỏ";
 
