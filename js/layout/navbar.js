@@ -54,6 +54,20 @@ export function loadNavbar() {
       cartDot.classList.toggle("show", cart.length > 0);
     };
 
+    const updateCartItemQuantity = (index, change) => {
+      const cart = window.cart || [];
+      const item = cart[index];
+      if (!item) return;
+      const current = item.quantity ?? 1;
+      const next = current + change;
+      if (next <= 0) {
+        cart.splice(index, 1);
+      } else {
+        item.quantity = next;
+      }
+      document.dispatchEvent(new CustomEvent("cart:updated"));
+    };
+
     const renderCartPreview = () => {
       const cart = window.cart || [];
       if (!cart.length) {
@@ -62,7 +76,7 @@ export function loadNavbar() {
       }
 
       cartPreviewBody.innerHTML = cart
-        .map((item) => {
+        .map((item, index) => {
           const name = item?.name || "Sản phẩm";
           const imageUrl = item?.imageUrl || "";
           const price = item?.price ?? 0;
@@ -72,7 +86,12 @@ export function loadNavbar() {
               <img class="cart-preview-img" src="${imageUrl}" alt="${name}" />
               <div class="cart-preview-info">
                 <p class="mb-0 cart-preview-name">${name}</p>
-                <p class="mb-0 text-white-50">${formatPrice(price)} x ${qty}</p>
+                <p class="mb-0 text-white-50">${formatPrice(price)}</p>
+                <div class="cart-preview-qty" data-index="${index}">
+                  <button type="button" class="cart-qty-btn" data-change="-1" aria-label="Decrease quantity">-</button>
+                  <span class="cart-qty-value">${qty}</span>
+                  <button type="button" class="cart-qty-btn" data-change="1" aria-label="Increase quantity">+</button>
+                </div>
               </div>
             </div>
           `;
@@ -110,9 +129,22 @@ export function loadNavbar() {
       }
     });
 
+    cartPreviewBody.addEventListener("click", (event) => {
+      const button = event.target.closest(".cart-qty-btn");
+      if (!button) return;
+      const wrapper = button.closest(".cart-preview-qty");
+      if (!wrapper) return;
+      const index = Number(wrapper.dataset.index);
+      const change = Number(button.dataset.change || 0);
+      if (Number.isNaN(index) || Number.isNaN(change) || !change) return;
+      updateCartItemQuantity(index, change);
+    });
+
     document.addEventListener("cart:updated", () => {
       renderCartPreview();
       updateCartDot();
     });
   }
 }
+
+

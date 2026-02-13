@@ -183,6 +183,40 @@ body {
     font-size: 0.9rem;
 }
 
+.cart-preview-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 4px 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+}
+
+.cart-qty-btn {
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.cart-qty-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.cart-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
 .hero-section {
     background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
         url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2070&auto=format&fit=crop');
