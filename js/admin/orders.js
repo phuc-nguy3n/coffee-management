@@ -2,6 +2,12 @@ import * as dbService from "../services/index.js";
 import { formatFirestoreDateTime } from "../utils/date.js";
 import { formatPrice } from "../utils/number.js";
 import { startButtonLoading, stopButtonLoading } from "../utils/ui.js";
+import {
+  DEFAULT_VALUES,
+  MESSAGES,
+  ORDER_STATUS,
+  UI_TEXTS,
+} from "../config/constants.js";
 
 const calculateOrderTotal = () => {
   let total = 0;
@@ -71,11 +77,11 @@ const loadOrders = () => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>#${docSnap.id.slice(0, 5)}</td>
-        <td>${o?.customerName || "Khách tại quầy"}</td>
+        <td>${o?.customerName || UI_TEXTS.orderWalkInCustomer}</td>
         <td>${formatPrice(o?.total)}</td>
-        <td><span class="badge ${o?.status === "Hoàn thành" ? "bg-success" : "bg-warning"}">${o?.status || ""}</span></td>
+        <td><span class="badge ${o?.status === ORDER_STATUS.completed ? "bg-success" : "bg-warning"}">${o?.status || ""}</span></td>
         <td>${formatFirestoreDateTime(o?.createdAt)}</td>
-        <td><button class="btn btn-sm btn-primary">Chi tiết</button></td>
+        <td><button class="btn btn-sm btn-primary">${UI_TEXTS.orderDetail}</button></td>
       `;
 
       tr.querySelector("button").addEventListener("click", () =>
@@ -106,7 +112,7 @@ const bindOrderForm = () => {
           id,
           document.getElementById("orderStatus").value,
         );
-        alert("Cập nhật trạng thái thành công!");
+        alert(MESSAGES.orderStatusUpdated);
       } else {
         const items = [];
         document.querySelectorAll(".product-select:checked").forEach((chk) => {
@@ -122,7 +128,7 @@ const bindOrderForm = () => {
         });
 
         if (items.length === 0) {
-          alert("Vui lòng chọn món!");
+          alert(MESSAGES.orderSelectItem);
           return;
         }
 
@@ -131,12 +137,12 @@ const bindOrderForm = () => {
           items,
           total: Number(document.getElementById("orderTotal").value),
         });
-        alert("Tạo đơn hàng thành công!");
+        alert(MESSAGES.orderCreated);
       }
 
       bootstrap.Modal.getInstance(document.getElementById("orderModal")).hide();
     } catch (error) {
-      alert("Lỗi: " + error.message);
+      alert(MESSAGES.errorPrefix + error.message);
     } finally {
       stopButtonLoading(submitBtn, originalHtml);
     }
@@ -147,16 +153,18 @@ const registerWindowActions = () => {
   window.openOrderModal = () => {
     document.getElementById("orderForm").reset();
     document.getElementById("currentOrderId").value = "";
-    document.getElementById("orderModalTitle").innerText = "Tạo Đơn Hàng Mới";
+    document.getElementById("orderModalTitle").innerText =
+      UI_TEXTS.orderModalCreateTitle;
 
     const statusField = document.getElementById("orderStatus");
-    statusField.value = "Đang chờ";
+    statusField.value = DEFAULT_VALUES.orderStatus;
     statusField.disabled = true;
 
     document
       .getElementById("product-selection-area")
       .classList.remove("d-none");
-    document.getElementById("btnOrderSubmit").innerText = "Xác nhận tạo đơn";
+    document.getElementById("btnOrderSubmit").innerText =
+      UI_TEXTS.orderModalCreateSubmit;
 
     renderProductCheckboxes();
     new bootstrap.Modal(document.getElementById("orderModal")).show();
@@ -200,15 +208,17 @@ const registerWindowActions = () => {
     statusField.value = o.status;
     statusField.disabled = false;
 
-    document.getElementById("orderModalTitle").innerText = "Chi tiết hóa đơn";
-    document.getElementById("btnOrderSubmit").innerText = "Cập nhật trạng thái";
+    document.getElementById("orderModalTitle").innerText =
+      UI_TEXTS.orderModalDetailTitle;
+    document.getElementById("btnOrderSubmit").innerText =
+      UI_TEXTS.orderModalUpdateSubmit;
 
     const container = document.getElementById("product-checkbox-list");
     document
       .getElementById("product-selection-area")
       .classList.remove("d-none");
 
-    container.innerHTML = `<div class="d-flex justify-content-between text-warning mb-2 border-bottom border-secondary pb-1"><span>Món đã đặt</span><span>Số lượng</span></div>`;
+    container.innerHTML = `<div class="d-flex justify-content-between text-warning mb-2 border-bottom border-secondary pb-1"><span>${UI_TEXTS.orderItemsHeader}</span><span>${UI_TEXTS.orderItemsQtyHeader}</span></div>`;
 
     const orderItems = o.items || o.products;
     if (orderItems && orderItems.length > 0) {
@@ -218,7 +228,7 @@ const registerWindowActions = () => {
         container.innerHTML += `<div class="text-white border-bottom border-dark py-2 d-flex justify-content-between align-items-center"><span>• ${name}</span><span class="badge bg-primary fs-6">${qty}</span></div>`;
       });
     } else {
-      container.innerHTML += `<div class="text-muted text-center">Không có dữ liệu</div>`;
+      container.innerHTML += `<div class="text-muted text-center">${UI_TEXTS.noData}</div>`;
     }
 
     new bootstrap.Modal(document.getElementById("orderModal")).show();

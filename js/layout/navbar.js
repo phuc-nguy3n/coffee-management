@@ -1,4 +1,4 @@
-import { APP_CONFIG, NAVIGATION_PATHS } from "../config/constants.js";
+import { APP_CONFIG, NAVIGATION_PATHS, UI_TEXTS } from "../config/constants.js";
 
 export function loadNavbar() {
   const navbarHTML = `
@@ -13,8 +13,8 @@ export function loadNavbar() {
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto" id="nav-menu-items">
-            <li class="nav-item"><a class="nav-link" href="${NAVIGATION_PATHS.home}">Trang chủ</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Menu</a></li>
+            <li class="nav-item"><a class="nav-link" href="${NAVIGATION_PATHS.home}">${UI_TEXTS.navbarHome}</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">${UI_TEXTS.navbarMenu}</a></li>
             <li class="nav-item" id="admin-feature"></li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" data-bs-toggle="dropdown">

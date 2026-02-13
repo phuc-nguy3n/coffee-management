@@ -1,3 +1,5 @@
+import { UI_TEXTS } from "../config/constants.js";
+
 export const formatFirestoreDate = (
   value,
   locale = "vi-VN",
@@ -11,7 +13,7 @@ export const formatFirestoreDate = (
 export const formatFirestoreDateTime = (
   value,
   locale = "vi-VN",
-  fallback = "Đang xử lý...",
+  fallback = UI_TEXTS.loading,
 ) => {
   return value && typeof value.toDate === "function"
     ? value.toDate().toLocaleString(locale)

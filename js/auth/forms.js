@@ -30,7 +30,7 @@ export const setupRegisterForm = (setRegisteringState) => {
     const confirmPass = document.getElementById("confirmPassword").value;
 
     if (password !== confirmPass) {
-      alert("Mật khẩu xác nhận không khớp!");
+      alert(MESSAGES.passwordMismatch);
       setRegisteringState(false);
       return;
     }
@@ -57,7 +57,7 @@ export const setupRegisterForm = (setRegisteringState) => {
       alert(MESSAGES.registerSuccess);
       window.location.href = NAVIGATION_PATHS.login;
     } catch (error) {
-      alert("Lỗi: " + error.message);
+      alert(MESSAGES.errorPrefix + error.message);
     } finally {
       setRegisteringState(false);
     }
@@ -76,10 +76,10 @@ export const setupLoginForm = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert("Đăng nhập thành công!");
+      alert(MESSAGES.loginSuccess);
       window.location.replace("./index.html");
     } catch (error) {
-      alert("Lỗi: " + error.message);
+      alert(MESSAGES.errorPrefix + error.message);
     }
   });
 };

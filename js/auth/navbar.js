@@ -4,24 +4,24 @@ import {
   doc,
   getDoc,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { NAVIGATION_PATHS } from "../config/constants.js";
+import { NAVIGATION_PATHS, UI_TEXTS } from "../config/constants.js";
 
 const ADMIN_DASHBOARD_PATH = NAVIGATION_PATHS.adminDashboard;
 
 const renderGuestMenu = (userDropdown, dropdownMenu) => {
   userDropdown.innerHTML = `<i class="fa-regular fa-user"></i>`;
   dropdownMenu.innerHTML = `
-    <li><a class="dropdown-item text-white" href="login.html">Đăng nhập</a></li>
-    <li><a class="dropdown-item text-white" href="register.html">Đăng ký</a></li>
+    <li><a class="dropdown-item text-white" href="${NAVIGATION_PATHS.login}">${UI_TEXTS.navbarLogin}</a></li>
+    <li><a class="dropdown-item text-white" href="${NAVIGATION_PATHS.register}">${UI_TEXTS.navbarRegister}</a></li>
   `;
 };
 
 const renderUserMenu = (userDropdown, dropdownMenu, user) => {
-  userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> ${user.displayName || "Thành viên"}`;
+  userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> ${user.displayName || UI_TEXTS.navbarMember}`;
   dropdownMenu.innerHTML = `
-    <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>Tài khoản</a></li>
+    <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>${UI_TEXTS.navbarAccount}</a></li>
     <li><hr class="dropdown-divider bg-secondary"></li>
-    <li><span role="button" class="dropdown-item text-white " id="logoutBtn">Đăng xuất</span></li>
+    <li><span role="button" class="dropdown-item text-white " id="logoutBtn">${UI_TEXTS.navbarLogout}</span></li>
   `;
 
   document
@@ -38,7 +38,7 @@ const renderAdminFeature = async (user, adminFeatureContainer) => {
   if (userDocSnap.data().role === "admin") {
     adminFeatureContainer.innerHTML = `
       <a class="nav-link text-warning" href="${ADMIN_DASHBOARD_PATH}">
-        <i class="fa-solid fa-gauge"></i> Dashboard
+        <i class="fa-solid fa-gauge"></i> ${UI_TEXTS.adminDashboard}
       </a>`;
   }
 };

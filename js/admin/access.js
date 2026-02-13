@@ -1,6 +1,7 @@
 import { auth } from "../config/firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import * as dbService from "../services/index.js";
+import { MESSAGES } from "../config/constants.js";
 
 export const enforceAdminAccess = (onAuthorized) => {
   onAuthStateChanged(auth, async (user) => {
@@ -11,7 +12,7 @@ export const enforceAdminAccess = (onAuthorized) => {
     try {
       const role = await dbService.getUserRole(user.uid);
       if (role !== "admin") {
-        alert("Bạn không có quyền truy cập!");
+        alert(MESSAGES.accessDenied);
         window.location.href = "../index.html";
         return;
       }

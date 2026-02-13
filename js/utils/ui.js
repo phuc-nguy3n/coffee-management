@@ -1,5 +1,6 @@
-const DEFAULT_LOADING_HTML =
-  '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
+import { UI_TEXTS } from "../config/constants.js";
+
+const DEFAULT_LOADING_HTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>${UI_TEXTS.loading}`;
 
 export const startButtonLoading = (
   button,

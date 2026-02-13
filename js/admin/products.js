@@ -2,6 +2,7 @@ import * as dbService from "../services/index.js";
 import { formatFirestoreDateTime } from "../utils/date.js";
 import { formatPrice } from "../utils/number.js";
 import { startButtonLoading, stopButtonLoading } from "../utils/ui.js";
+import { MESSAGES, UI_TEXTS } from "../config/constants.js";
 
 const productForm = document.getElementById("productForm");
 const imgFileInput = document.getElementById("pImgFile");
@@ -35,18 +36,17 @@ const clearImageSelection = () => {
 };
 
 const validateImageFile = (file) => {
-  if (!file) return { ok: false, message: "Vui lòng chọn ảnh sản phẩm!" };
+  if (!file) return { ok: false, message: MESSAGES.selectProductImage };
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
     return {
       ok: false,
-      message:
-        "Định dạng ảnh không hợp lệ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.",
+      message: MESSAGES.invalidImageType,
     };
   }
   if (file.size > MAX_IMAGE_BYTES) {
     return {
       ok: false,
-      message: "Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.",
+      message: MESSAGES.imageTooLarge,
     };
   }
   return { ok: true };
@@ -82,7 +82,7 @@ const renderPreviewFromFile = (file) => {
     }
     imgPreview.removeAttribute("src");
     imgPreview.classList.add("d-none");
-    setImageError("Không thể hiển thị ảnh đã chọn. Vui lòng thử lại.");
+    setImageError(MESSAGES.imagePreviewError);
   };
 };
 
@@ -142,13 +142,13 @@ const bindProductForm = () => {
         if (!uploadResult?.url) {
           setImageError(
             uploadResult?.errorMessage ||
-              "Không thể tải ảnh lên server. Vui lòng thử lại.",
+              MESSAGES.uploadImageFailed,
           );
           return;
         }
         imageUrl = uploadResult.url;
       } else if (!imageUrl) {
-        setImageError("Vui lòng chọn ảnh sản phẩm!");
+        setImageError(MESSAGES.selectProductImage);
         return;
       }
 
@@ -157,10 +157,10 @@ const bindProductForm = () => {
 
       if (id) {
         await dbService.updateProduct(id, data);
-        alert("Cập nhật thành công!");
+        alert(MESSAGES.productUpdated);
       } else {
         await dbService.addProduct(data);
-        alert("Thêm món mới thành công!");
+        alert(MESSAGES.productAdded);
       }
 
       bootstrap.Modal.getInstance(
@@ -244,7 +244,8 @@ const registerWindowActions = () => {
   window.openAddModal = () => {
     productForm.reset();
     document.getElementById("productId").value = "";
-    document.getElementById("modalTitle").innerText = "Thêm Sản Phẩm Mới";
+    document.getElementById("modalTitle").innerText =
+      UI_TEXTS.productModalCreateTitle;
     if (imgFileInput) {
       imgFileInput.value = "";
       imgFileInput.required = true;
@@ -266,16 +267,17 @@ const registerWindowActions = () => {
     }
     renderPreviewFromUrl(img || "");
     setImageError("");
-    document.getElementById("modalTitle").innerText = "Chỉnh sửa sản phẩm";
+    document.getElementById("modalTitle").innerText =
+      UI_TEXTS.productModalEditTitle;
     new bootstrap.Modal(document.getElementById("productModal")).show();
   };
 
   window.deleteProduct = async (id) => {
-    if (!confirm("Bạn có chắc muốn xóa món này?")) return;
+    if (!confirm(MESSAGES.confirmDeleteProduct)) return;
     try {
       await dbService.deleteProductById(id);
     } catch (error) {
-      alert("Lỗi khi xóa: " + error.message);
+      alert(MESSAGES.productDeleteErrorPrefix + error.message);
     }
   };
 };
