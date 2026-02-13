@@ -15,6 +15,12 @@ export function loadNavbar() {
           <ul class="navbar-nav ms-auto" id="nav-menu-items">
             <li class="nav-item"><a class="nav-link" href="${NAVIGATION_PATHS.home}">${UI_TEXTS.navbarHome}</a></li>
             <li class="nav-item"><a class="nav-link" href="#">${UI_TEXTS.navbarMenu}</a></li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-2" href="${NAVIGATION_PATHS.cart}">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>${UI_TEXTS.navbarCart}</span>
+              </a>
+            </li>
             <li class="nav-item" id="admin-feature"></li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" data-bs-toggle="dropdown">
