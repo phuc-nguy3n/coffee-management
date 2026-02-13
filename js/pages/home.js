@@ -7,16 +7,32 @@ const cart = window.cart || [];
 window.cart = cart;
 
 const addToCart = (product) => {
+  const id = product?.id;
   const name = product?.name || "Sản phẩm";
   const price = product?.price ?? 0;
   const imageUrl = product?.imageUrl || "";
 
-  cart.push({
-    name,
-    imageUrl,
-    price,
-    quantity: 1,
-  });
+  if (id) {
+    const existing = cart.find((item) => item.id === id);
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      cart.push({
+        id,
+        name,
+        imageUrl,
+        price,
+        quantity: 1,
+      });
+    }
+  } else {
+    cart.push({
+      name,
+      imageUrl,
+      price,
+      quantity: 1,
+    });
+  }
 
   document.dispatchEvent(new CustomEvent("cart:updated"));
 };
@@ -102,7 +118,9 @@ const initHomeProducts = () => {
       return;
     }
 
-    const limited = snapshot.docs.slice(0, 4).map((docSnap) => docSnap.data());
+    const limited = snapshot.docs
+      .slice(0, 4)
+      .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
     renderProducts(limited);
   });
 };

@@ -1,4 +1,5 @@
 import { APP_CONFIG, NAVIGATION_PATHS, UI_TEXTS } from "../config/constants.js";
+import { formatPrice } from "../utils/number.js";
 
 export function loadNavbar() {
   const navbarHTML = `
@@ -55,7 +56,7 @@ export function loadNavbar() {
 
       cartPreviewBody.innerHTML = cart
         .map((item) => {
-          const name = item?.name || "San pham";
+          const name = item?.name || "Sản phẩm";
           const imageUrl = item?.imageUrl || "";
           const price = item?.price ?? 0;
           const qty = item?.quantity ?? 1;
@@ -64,7 +65,7 @@ export function loadNavbar() {
               <img class="cart-preview-img" src="${imageUrl}" alt="${name}" />
               <div class="cart-preview-info">
                 <p class="mb-0 cart-preview-name">${name}</p>
-                <p class="mb-0 text-white-50">x${qty} • ${price}</p>
+                <p class="mb-0 text-white-50">${formatPrice(price)} x ${qty}</p>
               </div>
             </div>
           `;
