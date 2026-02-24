@@ -27,6 +27,9 @@ export function loadNavbar() {
               <div class="cart-preview" id="cart-preview" role="dialog" aria-label="${UI_TEXTS.navbarCart}">
                 <p class="mb-2 fw-semibold">${UI_TEXTS.navbarCart}</p>
                 <div class="cart-preview-body" id="cart-preview-body"></div>
+                <div class="cart-preview-footer">
+                  <a class="btn btn-sm btn-outline-light w-100" href="${NAVIGATION_PATHS.cart}">Xem giỏ hàng</a>
+                </div>
               </div>
             </li>
             <li class="nav-item" id="admin-feature"></li>
