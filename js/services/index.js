@@ -3,3 +3,4 @@ export * from "./productService.js";
 export * from "./orderService.js";
 export * from "./userService.js";
 export * from "./uploadService.js";
+export * from "./cartService.js";

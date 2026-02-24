@@ -1,8 +1,56 @@
-﻿import { subscribeProducts } from "./services/productService.js";
-import { formatPrice } from "./utils/number.js";
-import { UI_TEXTS } from "./config/constants.js";
+import { subscribeProducts } from "../services/productService.js";
+import { formatPrice } from "../utils/number.js";
+import { UI_TEXTS } from "../config/constants.js";
+import { auth } from "../config/firebase-config.js";
+import { saveCart } from "../services/cartService.js";
 
 const container = document.getElementById("home-products");
+const getCart = () => {
+  if (!Array.isArray(window.cart)) {
+    window.cart = [];
+  }
+  return window.cart;
+};
+
+const addToCart = (product) => {
+  const id = product?.id;
+  const name = product?.name || "Sản phẩm";
+  const price = product?.price ?? 0;
+  const imageUrl = product?.imageUrl || "";
+
+  const cart = getCart();
+
+  if (id) {
+    const existing = cart.find((item) => item.id === id);
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      cart.push({
+        id,
+        name,
+        imageUrl,
+        price,
+        quantity: 1,
+      });
+    }
+  } else {
+    cart.push({
+      name,
+      imageUrl,
+      price,
+      quantity: 1,
+    });
+  }
+
+  const uid = auth.currentUser?.uid;
+  if (uid) {
+    saveCart(uid, cart).catch((error) => {
+      console.error("Failed to save cart:", error);
+    });
+  }
+
+  document.dispatchEvent(new CustomEvent("cart:updated"));
+};
 
 const renderMessage = (message) => {
   if (!container) return;
@@ -52,9 +100,10 @@ const buildCard = (product) => {
   header.appendChild(priceEl);
 
   const button = document.createElement("button");
-  button.className = "btn btn-order";
+  button.className = "btn btn-order d-block ms-auto";
   button.type = "button";
-  button.textContent = "Đặt hàng";
+  button.textContent = "Thêm vào giỏ";
+  button.addEventListener("click", () => addToCart(product));
 
   body.appendChild(header);
   body.appendChild(button);
@@ -84,7 +133,9 @@ const initHomeProducts = () => {
       return;
     }
 
-    const limited = snapshot.docs.slice(0, 4).map((docSnap) => docSnap.data());
+    const limited = snapshot.docs
+      .slice(0, 4)
+      .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
     renderProducts(limited);
   });
 };
