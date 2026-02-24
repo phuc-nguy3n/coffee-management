@@ -1,16 +1,24 @@
-﻿import { subscribeProducts } from "../services/productService.js";
+import { subscribeProducts } from "../services/productService.js";
 import { formatPrice } from "../utils/number.js";
 import { UI_TEXTS } from "../config/constants.js";
+import { auth } from "../config/firebase-config.js";
+import { saveCart } from "../services/cartService.js";
 
 const container = document.getElementById("home-products");
-const cart = window.cart || [];
-window.cart = cart;
+const getCart = () => {
+  if (!Array.isArray(window.cart)) {
+    window.cart = [];
+  }
+  return window.cart;
+};
 
 const addToCart = (product) => {
   const id = product?.id;
   const name = product?.name || "Sản phẩm";
   const price = product?.price ?? 0;
   const imageUrl = product?.imageUrl || "";
+
+  const cart = getCart();
 
   if (id) {
     const existing = cart.find((item) => item.id === id);
@@ -31,6 +39,13 @@ const addToCart = (product) => {
       imageUrl,
       price,
       quantity: 1,
+    });
+  }
+
+  const uid = auth.currentUser?.uid;
+  if (uid) {
+    saveCart(uid, cart).catch((error) => {
+      console.error("Failed to save cart:", error);
     });
   }
 

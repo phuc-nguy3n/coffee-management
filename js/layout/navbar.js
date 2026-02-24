@@ -1,5 +1,7 @@
 import { APP_CONFIG, NAVIGATION_PATHS, UI_TEXTS } from "../config/constants.js";
 import { formatPrice } from "../utils/number.js";
+import { auth } from "../config/firebase-config.js";
+import { saveCart } from "../services/cartService.js";
 
 export function loadNavbar() {
   const navbarHTML = `
@@ -49,13 +51,28 @@ export function loadNavbar() {
   const cartDot = document.getElementById("cart-dot");
 
   if (cartToggle && cartPreview && cartPreviewBody && cartDot) {
+    const getCart = () => {
+      if (!Array.isArray(window.cart)) {
+        window.cart = [];
+      }
+      return window.cart;
+    };
+
     const updateCartDot = () => {
-      const cart = window.cart || [];
+      const cart = getCart();
       cartDot.classList.toggle("show", cart.length > 0);
     };
 
+    const persistCartIfNeeded = (cart) => {
+      const uid = auth.currentUser?.uid;
+      if (!uid) return;
+      saveCart(uid, cart).catch((error) => {
+        console.error("Failed to save cart:", error);
+      });
+    };
+
     const updateCartItemQuantity = (index, change) => {
-      const cart = window.cart || [];
+      const cart = getCart();
       const item = cart[index];
       if (!item) return;
       const current = item.quantity ?? 1;
@@ -65,11 +82,12 @@ export function loadNavbar() {
       } else {
         item.quantity = next;
       }
+      persistCartIfNeeded(cart);
       document.dispatchEvent(new CustomEvent("cart:updated"));
     };
 
     const renderCartPreview = () => {
-      const cart = window.cart || [];
+      const cart = getCart();
       if (!cart.length) {
         cartPreviewBody.innerHTML = `<p class="mb-0 text-white-50">Giỏ hàng trống</p>`;
         return;
