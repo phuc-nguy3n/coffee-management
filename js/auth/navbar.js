@@ -20,6 +20,7 @@ const renderUserMenu = (userDropdown, dropdownMenu, user) => {
   userDropdown.innerHTML = `<i class="fa-regular fa-user me-1"></i> ${user.displayName || UI_TEXTS.navbarMember}`;
   dropdownMenu.innerHTML = `
     <li><a class="dropdown-item text-white" href="#"><i class="fa-solid fa-circle-user me-2"></i>${UI_TEXTS.navbarAccount}</a></li>
+    <li><a class="dropdown-item text-white" href="${NAVIGATION_PATHS.orders}"><i class="fa-solid fa-receipt me-2"></i>${UI_TEXTS.navbarOrders}</a></li>
     <li><hr class="dropdown-divider bg-secondary"></li>
     <li><span role="button" class="dropdown-item text-white " id="logoutBtn">${UI_TEXTS.navbarLogout}</span></li>
   `;
