@@ -10,6 +10,7 @@ import {
   getDoc,
   query,
   orderBy,
+  where,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { COLLECTIONS, DEFAULT_VALUES } from "../config/constants.js";
 
@@ -20,6 +21,12 @@ const orderCol = collection(db, COLLECTIONS.orders);
 
 export const subscribeOrders = (callback) => {
   const q = query(orderCol, orderBy("createdAt", "desc"));
+  return onSnapshot(q, callback);
+};
+
+export const subscribeOrdersByUser = (uid, callback) => {
+  if (!uid) return () => {};
+  const q = query(orderCol, where("userId", "==", uid));
   return onSnapshot(q, callback);
 };
 

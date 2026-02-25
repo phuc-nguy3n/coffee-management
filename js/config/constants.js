@@ -23,6 +23,8 @@ export const NAVIGATION_PATHS = {
   register: "register.html",
   adminDashboard: "../admin/dashboard.html",
   cart: "cart.html",
+  checkout: "checkout.html",
+  orders: "orders.html",
 };
 
 // Local Storage Keys
@@ -55,6 +57,7 @@ export const UI_TEXTS = {
   navbarLogout: "Đăng xuất",
   navbarMember: "Thành viên",
   navbarCart: "Giỏ hàng",
+  navbarOrders: "Đơn hàng của tôi",
   adminDashboard: "Dashboard",
   orderWalkInCustomer: "Khách tại quầy",
   orderDetail: "Chi tiết",

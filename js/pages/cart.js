@@ -91,8 +91,8 @@ const renderCart = () => {
           <h4 class="mb-0">${formatPrice(total)}</h4>
         </div>
         <div class="cart-summary-actions">
-          <button type="button" class="btn btn-primary" disabled>Thanh toán</button>
-          <p class="text-muted mb-0">Thanh toán sẽ được bổ sung sau.</p>
+          <a class="btn btn-primary" href="${NAVIGATION_PATHS.checkout}">Thanh toán</a>
+          <p class="text-muted mb-0">Điền thông tin để hoàn tất đơn.</p>
         </div>
       </div>
     </div>
