@@ -74,6 +74,7 @@ export const MESSAGES = {
   accessDenied: "Bạn không có quyền truy cập!",
   passwordMismatch: "Mật khẩu xác nhận không khớp!",
   errorPrefix: "Lỗi: ",
+  loginRequired: "Vui lòng đăng nhập để thêm món vào giỏ hàng.",
   productDeleteErrorPrefix: "Lỗi khi xóa: ",
   registerSuccess: "Đăng ký thành công!",
   loginSuccess: "Đăng nhập thành công!",

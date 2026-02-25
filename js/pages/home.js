@@ -1,6 +1,6 @@
 import { subscribeProducts } from "../services/productService.js";
 import { formatPrice } from "../utils/number.js";
-import { UI_TEXTS } from "../config/constants.js";
+import { MESSAGES, NAVIGATION_PATHS, UI_TEXTS } from "../config/constants.js";
 import { auth } from "../config/firebase-config.js";
 import { saveCart } from "../services/cartService.js";
 
@@ -13,6 +13,13 @@ const getCart = () => {
 };
 
 const addToCart = (product) => {
+  const uid = auth.currentUser?.uid;
+  if (!uid) {
+    alert(MESSAGES.loginRequired || "Vui lòng đăng nhập để tiếp tục.");
+    window.location.href = NAVIGATION_PATHS.login;
+    return;
+  }
+
   const id = product?.id;
   const name = product?.name || "Sản phẩm";
   const price = product?.price ?? 0;
@@ -42,12 +49,9 @@ const addToCart = (product) => {
     });
   }
 
-  const uid = auth.currentUser?.uid;
-  if (uid) {
-    saveCart(uid, cart).catch((error) => {
-      console.error("Failed to save cart:", error);
-    });
-  }
+  saveCart(uid, cart).catch((error) => {
+    console.error("Failed to save cart:", error);
+  });
 
   document.dispatchEvent(new CustomEvent("cart:updated"));
 };

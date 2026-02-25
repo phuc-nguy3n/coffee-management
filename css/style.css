@@ -319,6 +319,7 @@ body {
 .cart-row-qty {
     display: inline-flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
     padding: 6px 10px;
     border-radius: 999px;
