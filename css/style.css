@@ -395,6 +395,89 @@ body {
     margin-bottom: 16px;
 }
 
+.checkout-page {
+    min-height: 100vh;
+    padding: 120px 0 80px;
+    background: linear-gradient(180deg, #141415 0%, #1e1f22 55%, #f6f2ee 55%);
+}
+
+.checkout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    color: #ffffff;
+}
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: 24px;
+}
+
+.checkout-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+}
+
+.checkout-form .form-control {
+    padding-left: 16px;
+    color: #9b9b9b !important;
+}
+
+.checkout-form .form-control::placeholder {
+    color: #9b9b9b !important;
+}
+
+.checkout-choice {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.checkout-choice label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #f3f3f3;
+    cursor: pointer;
+}
+
+.checkout-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.checkout-summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.checkout-summary-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.checkout-summary-total {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+}
+
+.checkout-empty {
+    text-align: center;
+    padding: 30px 10px;
+}
+
 @media (max-width: 992px) {
     .cart-row {
         grid-template-columns: 64px 1fr;
@@ -410,6 +493,10 @@ body {
 
     .cart-row-total {
         text-align: left;
+    }
+
+    .checkout-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -427,6 +514,12 @@ body {
     .cart-summary {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .checkout-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
     }
 }
 

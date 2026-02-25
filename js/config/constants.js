@@ -23,6 +23,7 @@ export const NAVIGATION_PATHS = {
   register: "register.html",
   adminDashboard: "../admin/dashboard.html",
   cart: "cart.html",
+  checkout: "checkout.html",
 };
 
 // Local Storage Keys
