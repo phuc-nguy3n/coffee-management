@@ -154,7 +154,12 @@ const bindOrderForm = () => {
         }
 
         await dbService.createOrder({
+          userId: null,
           customerName: document.getElementById("orderCustomer").value,
+          phone: document.getElementById("orderPhone").value.trim(),
+          note: document.getElementById("orderNote").value.trim(),
+          orderType: document.getElementById("orderType").value,
+          paymentMethod: document.getElementById("orderPayment").value,
           items,
           total: Number(document.getElementById("orderTotal").value),
         });
@@ -180,6 +185,30 @@ const registerWindowActions = () => {
     const statusField = document.getElementById("orderStatus");
     statusField.value = DEFAULT_VALUES.orderStatus;
     statusField.disabled = true;
+
+    const phoneField = document.getElementById("orderPhone");
+    if (phoneField) {
+      phoneField.disabled = false;
+      phoneField.value = "";
+    }
+
+    const typeField = document.getElementById("orderType");
+    if (typeField) {
+      typeField.disabled = false;
+      typeField.value = "takeaway";
+    }
+
+    const paymentField = document.getElementById("orderPayment");
+    if (paymentField) {
+      paymentField.disabled = false;
+      paymentField.value = "cash";
+    }
+
+    const noteField = document.getElementById("orderNote");
+    if (noteField) {
+      noteField.disabled = false;
+      noteField.value = "";
+    }
 
     document
       .getElementById("product-selection-area")
@@ -223,6 +252,26 @@ const registerWindowActions = () => {
     const o = docSnap.data();
     document.getElementById("currentOrderId").value = id;
     document.getElementById("orderCustomer").value = o.customerName;
+    const phoneField = document.getElementById("orderPhone");
+    if (phoneField) {
+      phoneField.value = o.phone || "";
+      phoneField.disabled = true;
+    }
+    const typeField = document.getElementById("orderType");
+    if (typeField) {
+      typeField.value = o.orderType || "takeaway";
+      typeField.disabled = true;
+    }
+    const paymentField = document.getElementById("orderPayment");
+    if (paymentField) {
+      paymentField.value = o.paymentMethod || "cash";
+      paymentField.disabled = true;
+    }
+    const noteField = document.getElementById("orderNote");
+    if (noteField) {
+      noteField.value = o.note || "";
+      noteField.disabled = true;
+    }
     document.getElementById("orderTotal").value = o.total;
 
     const statusField = document.getElementById("orderStatus");
