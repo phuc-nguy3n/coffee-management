@@ -1,0 +1,152 @@
+import { subscribeProducts } from "../services/productService.js";
+import { formatPrice } from "../utils/number.js";
+import { MESSAGES, NAVIGATION_PATHS, UI_TEXTS } from "../config/constants.js";
+import { auth } from "../config/firebase-config.js";
+import { saveCart } from "../services/cartService.js";
+
+const container = document.getElementById("products-list");
+
+const getCart = () => {
+  if (!Array.isArray(window.cart)) {
+    window.cart = [];
+  }
+  return window.cart;
+};
+
+const addToCart = (product) => {
+  const uid = auth.currentUser?.uid;
+  if (!uid) {
+    alert(
+      MESSAGES.loginRequired ||
+        "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng",
+    );
+    window.location.href = NAVIGATION_PATHS.login;
+    return;
+  }
+
+  const id = product?.id;
+  const name = product?.name || "S?n ph?m";
+  const price = product?.price ?? 0;
+  const imageUrl = product?.imageUrl || "";
+
+  const cart = getCart();
+
+  if (id) {
+    const existing = cart.find((item) => item.id === id);
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      cart.push({
+        id,
+        name,
+        imageUrl,
+        price,
+        quantity: 1,
+      });
+    }
+  } else {
+    cart.push({
+      name,
+      imageUrl,
+      price,
+      quantity: 1,
+    });
+  }
+
+  saveCart(uid, cart).catch((error) => {
+    console.error("Failed to save cart:", error);
+  });
+
+  document.dispatchEvent(new CustomEvent("cart:updated"));
+};
+
+const renderMessage = (message) => {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="col-12">
+      <p class="text-muted mb-0">${message}</p>
+    </div>
+  `;
+};
+
+const buildCard = (product) => {
+  const name = product?.name || "S?n ph?m";
+  const price = product?.price ?? 0;
+  const imageUrl = product?.imageUrl || "";
+
+  const col = document.createElement("div");
+  col.className = "col-6 col-md-3";
+
+  const card = document.createElement("div");
+  card.className = "card product-card";
+
+  const img = document.createElement("img");
+  img.className = "card-img-top";
+  img.alt = name;
+  img.loading = "lazy";
+  img.src = imageUrl;
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = "";
+  };
+
+  const body = document.createElement("div");
+  body.className = "card-body";
+
+  const header = document.createElement("div");
+  header.className = "d-flex justify-content-between align-items-center mb-2";
+
+  const title = document.createElement("h6");
+  title.className = "card-title mb-0";
+  title.textContent = name;
+
+  const priceEl = document.createElement("span");
+  priceEl.className = "price-text";
+  priceEl.textContent = formatPrice(price);
+
+  header.appendChild(title);
+  header.appendChild(priceEl);
+
+  const button = document.createElement("button");
+  button.className = "btn btn-order d-block ms-auto";
+  button.type = "button";
+  button.textContent = "Thêm vào giỏ";
+  button.addEventListener("click", () => addToCart(product));
+
+  body.appendChild(header);
+  body.appendChild(button);
+
+  card.appendChild(img);
+  card.appendChild(body);
+  col.appendChild(card);
+
+  return col;
+};
+
+const renderProducts = (products) => {
+  if (!container) return;
+  container.textContent = "";
+  products.forEach((product) => {
+    container.appendChild(buildCard(product));
+  });
+};
+
+const initProductsPage = () => {
+  if (!container) return;
+  renderMessage("Đang tải...");
+
+  subscribeProducts((snapshot) => {
+    if (!snapshot.size) {
+      renderMessage(UI_TEXTS?.noData || "Không có dữ liệu");
+      return;
+    }
+
+    const products = snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    }));
+    renderProducts(products);
+  });
+};
+
+initProductsPage();

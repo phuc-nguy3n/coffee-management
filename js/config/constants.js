@@ -19,6 +19,7 @@ export const FIREBASE_CONFIG = {
 // Navigation Paths
 export const NAVIGATION_PATHS = {
   home: "index.html",
+  products: "products.html",
   login: "login.html",
   register: "register.html",
   adminDashboard: "../admin/dashboard.html",

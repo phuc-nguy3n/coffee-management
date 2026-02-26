@@ -17,7 +17,7 @@ export function loadNavbar() {
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto" id="nav-menu-items">
             <li class="nav-item"><a class="nav-link" href="${NAVIGATION_PATHS.home}">${UI_TEXTS.navbarHome}</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">${UI_TEXTS.navbarMenu}</a></li>
+            <li class="nav-item"><a class="nav-link" href="${NAVIGATION_PATHS.products}">${UI_TEXTS.navbarMenu}</a></li>
             <li class="nav-item cart-item">
               <a class="nav-link d-flex align-items-center gap-2" id="cart-toggle" href="${NAVIGATION_PATHS.cart}" role="button" aria-expanded="false" aria-haspopup="true">
                 <i class="fa-solid fa-cart-shopping"></i>
